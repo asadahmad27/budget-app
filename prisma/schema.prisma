@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  wallets      Wallet[]
+  budgetMonths BudgetMonth[]
+  categories   Category[]
+  transactions Transaction[]
+}
+
+model Wallet {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  color        String   @default("#1a2b48")
+  type         String?
+  providerKey  String?
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletMonths WalletMonth[]
+  categories   Category[]
+  transactions Transaction[]
+
+  @@unique([userId, name])
+  @@unique([userId, providerKey])
+  @@index([userId])
+  @@index([userId, isActive])
+}
+
+model BudgetMonth {
+  id              String   @id @default(cuid())
+  userId          String
+  year            Int
+  month           Int
+  rolloverEnabled Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletMonths    WalletMonth[]
+  categoryBudgets CategoryBudget[]
+  transactions    Transaction[]
+
+  @@unique([userId, year, month])
+  @@index([userId])
+}
+
+model WalletMonth {
+  id             String  @id @default(cuid())
+  budgetMonthId  String
+  walletId       String
+  openingBalance Decimal @default(0) @db.Decimal(12, 2)
+  addedAmount    Decimal @default(0) @db.Decimal(12, 2)
+
+  budgetMonth BudgetMonth @relation(fields: [budgetMonthId], references: [id], onDelete: Cascade)
+  wallet      Wallet      @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@unique([budgetMonthId, walletId])
+}
+
+model Category {
+  id        String @id @default(cuid())
+  userId    String
+  walletId  String
+  name      String
+  sortOrder Int    @default(0)
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallet          Wallet           @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  categoryBudgets CategoryBudget[]
+  transactions    Transaction[]
+
+  @@unique([userId, walletId, name])
+  @@index([userId])
+}
+
+model CategoryBudget {
+  id            String  @id @default(cuid())
+  budgetMonthId String
+  categoryId    String
+  budgetAmount  Decimal @db.Decimal(12, 2)
+
+  budgetMonth BudgetMonth @relation(fields: [budgetMonthId], references: [id], onDelete: Cascade)
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([budgetMonthId, categoryId])
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  userId        String
+  budgetMonthId String
+  walletId      String
+  categoryId    String?
+  amount        Decimal  @db.Decimal(12, 2)
+  description   String?
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgetMonth BudgetMonth @relation(fields: [budgetMonthId], references: [id], onDelete: Cascade)
+  wallet      Wallet      @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  category    Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([budgetMonthId, walletId])
+  @@index([userId])
+}

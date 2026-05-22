@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JazzCash Daily Groceries</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#aeeecb",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#44474d",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "on-primary-fixed": "#081b38",
+                        "on-primary-fixed-variant": "#374765",
+                        "primary-container": "#1a2b48",
+                        "secondary-fixed": "#b1f0ce",
+                        "on-tertiary-fixed": "#181c1e",
+                        "primary": "#031632",
+                        "surface-container": "#e5eeff",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "inverse-surface": "#213145",
+                        "background": "#f8f9ff",
+                        "secondary-fixed-dim": "#95d4b3",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-surface": "#0b1c30",
+                        "surface-tint": "#4e5f7e",
+                        "inverse-primary": "#b6c7eb",
+                        "on-secondary-fixed-variant": "#0e5138",
+                        "primary-fixed-dim": "#b6c7eb",
+                        "on-primary-container": "#8293b5",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#316e52",
+                        "primary-fixed": "#d7e2ff",
+                        "surface-container-low": "#eff4ff",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface": "#f8f9ff",
+                        "outline": "#75777e",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#002114",
+                        "outline-variant": "#c5c6ce",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-container": "#8f9395",
+                        "tertiary-fixed": "#e0e3e5",
+                        "secondary": "#2c694e",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-container": "#282c2e",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#131819",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#434749",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#dce9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "unit": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "container-max-width": "1200px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- Top App Bar -->
+<header class="bg-surface sticky top-0 z-40 flex justify-between items-center w-full px-margin-mobile py-unit h-16 max-w-container-max-width mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high ring-2 ring-primary-fixed">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a young Pakistani man with a friendly expression, set against a blurred modern office background. The lighting is soft and natural, emphasizing a clean-cut, professional aesthetic. The image uses a high-key color palette with subtle blue and white tones to match the modern fintech app's professional branding." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7TmCeOaqBMn3qtwtSfJfqPIvsjsYbmDRR60PfGSDeVJ8FZczG-LkLIfJuHqclxoQwqy8sbuKMCBD65vSnCaQWOVBSQ6-k0H1fdD7XvoEJIqo-shIPFlqThf9FfrgqdHaglc5S3w47P9bOzTabdoPaykZ6dol6w1N3DaMEttUTl29pIBlig3YUP84R6VRW8IMgTthe0_YFTB86e0Xzu_li07ThwFU_6EKZFshHAXIB_q9y-6B7t35xNHfpOlRcRw4a063bchlESFUT"/>
+</div>
+<h1 class="font-headline-sm text-headline-sm-mobile font-bold text-primary">August 2024</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="px-margin-mobile max-w-container-max-width mx-auto space-y-6 mt-4">
+<!-- Budget Tracking Card (Bento Style Large) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="md:col-span-2 glass-card p-6 rounded-xl shadow-sm border-l-4 border-l-primary flex flex-col justify-between">
+<div>
+<span class="font-label-md text-on-surface-variant flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-sm" data-icon="account_balance_wallet">account_balance_wallet</span>
+                        JazzCash Grocery Limit
+                    </span>
+<div class="flex items-baseline gap-2">
+<h2 class="font-headline-lg text-headline-lg-mobile text-primary">PKR 8,450</h2>
+<span class="font-label-md text-on-surface-variant">/ 15,000</span>
+</div>
+</div>
+<div class="mt-6">
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-sm text-on-surface-variant">56% Spent</span>
+<span class="font-label-sm font-bold text-secondary">PKR 6,550 Remaining</span>
+</div>
+<div class="w-full h-3 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary transition-all duration-1000 ease-out" style="width: 56.33%;"></div>
+</div>
+</div>
+</div>
+<!-- Quick Entry Field -->
+<div class="bg-primary-container text-on-primary p-6 rounded-xl shadow-md flex flex-col justify-center gap-4">
+<h3 class="font-headline-sm text-primary-fixed">Quick Entry</h3>
+<div class="space-y-3">
+<div class="relative">
+<label class="font-label-sm text-on-primary-container mb-1 block">Today's Milk: [Input]</label>
+<input class="w-full bg-surface-container-low text-primary px-4 py-3 rounded-lg border-none focus:ring-2 focus:ring-secondary-fixed-dim outline-none transition-shadow font-headline-sm" placeholder="Enter amount" type="number"/>
+<span class="absolute right-4 top-[38px] text-on-surface-variant font-label-md">PKR</span>
+</div>
+<button class="w-full bg-secondary-container text-on-secondary-fixed-variant py-3 rounded-lg font-label-md hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                        Log Daily Items
+                    </button>
+</div>
+</div>
+</section>
+<!-- Daily Spending List -->
+<section class="space-y-4">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-sm text-primary">Daily Logs</h3>
+<button class="text-secondary font-label-md flex items-center gap-1">
+                    See All <span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<!-- Log Entry -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="water_drop">water_drop</span>
+</div>
+<div>
+<p class="font-label-md text-primary">Milk &amp; Yogurt</p>
+<p class="font-label-sm text-on-surface-variant">Today, 08:30 AM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-label-md font-bold text-primary">PKR 450</p>
+<p class="font-label-sm text-secondary">Paid</p>
+</div>
+</div>
+<!-- Log Entry -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="egg">egg</span>
+</div>
+<div>
+<p class="font-label-md text-primary">Vegetables &amp; Eggs</p>
+<p class="font-label-sm text-on-surface-variant">Aug 14, 06:15 PM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-label-md font-bold text-primary">PKR 1,200</p>
+<p class="font-label-sm text-secondary">Paid</p>
+</div>
+</div>
+<!-- Log Entry -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="shopping_basket">shopping_basket</span>
+</div>
+<div>
+<p class="font-label-md text-primary">Weekly Stock</p>
+<p class="font-label-sm text-on-surface-variant">Aug 12, 10:00 AM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-label-md font-bold text-primary">PKR 3,500</p>
+<p class="font-label-sm text-secondary">Paid</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Category Progress Section -->
+<section class="bg-surface-container-low p-6 rounded-2xl">
+<h3 class="font-headline-sm text-primary mb-6">Itemized Tracking</h3>
+<div class="space-y-6">
+<!-- Milk Progress -->
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="local_drink">local_drink</span>
+<span class="font-label-md">Milk (Daily)</span>
+</div>
+<span class="font-label-sm text-on-surface-variant">PKR 4,200 / 6,000</span>
+</div>
+<div class="w-full h-1.5 bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary transition-all" style="width: 70%;"></div>
+</div>
+</div>
+<!-- Veggies Progress -->
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="nutrition">nutrition</span>
+<span class="font-label-md">Vegetables</span>
+</div>
+<span class="font-label-sm text-on-surface-variant">PKR 3,100 / 5,000</span>
+</div>
+<div class="w-full h-1.5 bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary transition-all" style="width: 62%;"></div>
+</div>
+</div>
+<!-- Dairy Progress -->
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="restaurant">restaurant</span>
+<span class="font-label-md">Other Items</span>
+</div>
+<span class="font-label-sm text-error">PKR 1,150 / 1,000</span>
+</div>
+<div class="w-full h-1.5 bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-error transition-all" style="width: 100%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Insights Illustration -->
+<section class="relative h-48 rounded-2xl overflow-hidden shadow-sm group">
+<img alt="Grocery Market" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A lush and vibrant display of fresh, colorful vegetables and organic dairy products at a modern marketplace. The sunlight filters through, creating a warm, inviting atmosphere with crisp details on the textures of leafy greens and white milk bottles. The visual style is bright and professional, mirroring the clean and organized financial management interface of the app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwNJnWTV5Y7IBh33PriHRNpy7bTOQqv38rCW6crgopZtEB-838TrqoL8fPsfP1dR6w8LDxuNf92q7sqhFl_j7Dr1FIEUjjrn6_IBIgMyjWg0l8QcEJ1KWjGr4PCOYHh0c2LsV3D-sFOWOW_L1rfjWiY0s_3fUZ8xLX1uOu72V6NA_gdVL7ChYbU2IZYiQTSLt2Z4PBExX4-0RzARVTovuL1I1u9C1txp7kxTmTwiUUcyDABEcTNFVOwmw5IFT7yaiI55kGhZEKplua"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex flex-col justify-end p-6">
+<p class="font-headline-sm text-on-primary">Spending Insight</p>
+<p class="font-body-md text-primary-fixed-dim">You're saving 15% more on milk this month by buying daily from JazzCash merchants.</p>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-surface-container-lowest border-t border-outline-variant">
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm-mobile">Overview</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-label-sm text-label-sm-mobile">Wallets</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="category">category</span>
+<span class="font-label-sm text-label-sm-mobile">Categories</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm-mobile">Settings</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction for the progress bar animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBars = document.querySelectorAll('.h-full.bg-secondary, .h-full.bg-primary, .h-full.bg-error');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+            });
+        });
+    </script>
+</body></html>

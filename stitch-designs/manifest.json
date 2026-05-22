@@ -1,0 +1,57 @@
+{
+  "projectId": "13627851444357786879",
+  "projectTitle": "Intelligent Web App Designer",
+  "screens": [
+    {
+      "name": "overview-dashboard",
+      "title": "Overview Dashboard",
+      "id": "2bb2ec2daa764d0ca83cc63e6f0b68a9",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sX2NjNGJmNDEyYmMwZDRjM2FhZGQ0MGVkMzM4OTRjMDhhEgsSBxDEj7e_8w4YAZIBJAoKcHJvamVjdF9pZBIWQhQxMzYyNzg1MTQ0NDM1Nzc4Njg3OQ&filename=&opi=89354086",
+      "imageUrl": "https://lh3.googleusercontent.com/aida/ADBb0uj6sZVayvM9dD6jUg1LlmHuJcr-tqpCQiZ2-ChtFlxDktinWsVqX7cbnk95sd6X4Jim4U40WDiPJ1ClRayt5FYqwPL72NKIurTfgbfDKvQaKyI2LV6zO6j1XaCVfXTzlTokOm6-th7PG-K3FP7zoQqdMy8mPqj_6Mt92V9SOQntPkxNuN-B5COJFwlx22uIyI55fL_9gQx1jzba1arYKXKvCZkljJECGJHx2AqaW8Z4VYs0GYSNpSnh_a6I",
+      "htmlPath": "./stitch-designs/overview-dashboard.html",
+      "imagePath": "./stitch-designs/overview-dashboard.png"
+    },
+    {
+      "name": "log-transaction",
+      "title": "Log Transaction",
+      "id": "4ac5fe728c484cad9fa0e5ae3baf53ae",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sX2Q0Y2M1YzBkNjY4MjRhMTdhYzFhMmIxNjVkNWQwMTBkEgsSBxDEj7e_8w4YAZIBJAoKcHJvamVjdF9pZBIWQhQxMzYyNzg1MTQ0NDM1Nzc4Njg3OQ&filename=&opi=89354086",
+      "imageUrl": "https://lh3.googleusercontent.com/aida/ADBb0ugFOvGJ2hJWyy5ToocEPMZEWCB_QiUH-VjUSyX7GA79cEO-ZqgGdZvJT8lg9k0gnrdM0o94qaGPC-gOM7DwYgOqjg3COeNZqgLhEt7Bx7ax2wKxpS6VkShWQ1HN4ktD21RpCsRNQzCislwvRJNMLZUcHQr8jJGzLw2td0mPJBp8aFaFCfjzkmgdEWQAJ-QrvhjixK64BFF5f_gIrPCokfDn6c5c7khitPeoVYW6CCXBbo8nUW-R-J20d8w",
+      "htmlPath": "./stitch-designs/log-transaction.html",
+      "imagePath": "./stitch-designs/log-transaction.png"
+    },
+    {
+      "name": "wallet-categories",
+      "title": "Wallet & Categories View",
+      "id": "717a94eb180e42be99f6eee28ee2cdaf",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzM1ZjUzN2M4MDM2NzRlZDliZTA5ZmVlYmJiNTRmMjk1EgsSBxDEj7e_8w4YAZIBJAoKcHJvamVjdF9pZBIWQhQxMzYyNzg1MTQ0NDM1Nzc4Njg3OQ&filename=&opi=89354086",
+      "imageUrl": "https://lh3.googleusercontent.com/aida/ADBb0ugaGHgdAVdmDqBgMNJAWU2-WvK9w2m0x-4_CvtEWGivKE5SApwtEVA7LDqnGm1XXSwvzs-1s_u3szOBNCc8MsI-_3Lz_P_bUVp3Fco-dnzkEsPvZYMsySP1JAK6Ma25KrhOSohVMkE5kB5xqeDM6rWlJDLqEcOwnhAWw_hpgzYMuA2cDwt05smNNgdkhaPlscKgq8pgf_kJVH1HfXWhilSTqj8vf76NRaXgDSSP6f9zpeAsSXcpbq4GpOTW",
+      "htmlPath": "./stitch-designs/wallet-categories.html",
+      "imagePath": "./stitch-designs/wallet-categories.png"
+    },
+    {
+      "name": "budget-specifications",
+      "title": "Budget Specifications",
+      "id": "bc5b5e0198024403b6402a4ef56af834",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sX2FhZTZiMTJiZmVmNDQ5ZTJiZmYwZGFmOTRiZGYxMmExEgsSBxDEj7e_8w4YAZIBJAoKcHJvamVjdF9pZBIWQhQxMzYyNzg1MTQ0NDM1Nzc4Njg3OQ&filename=&opi=89354086",
+      "imageUrl": "",
+      "htmlPath": "./stitch-designs/budget-specifications.html"
+    },
+    {
+      "name": "jazzcash-tracker",
+      "title": "JazzCash Tracker",
+      "id": "d9d19d89d4414895912622de9d886c07",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzc3YWQ2ZjMwNjE2YjRkYzliNzE3ZDFjYzUyZmU2MmFlEgsSBxDEj7e_8w4YAZIBJAoKcHJvamVjdF9pZBIWQhQxMzYyNzg1MTQ0NDM1Nzc4Njg3OQ&filename=&opi=89354086",
+      "imageUrl": "https://lh3.googleusercontent.com/aida/ADBb0ugepwk2H469HwVAYPeWceQiCD6UUN1wzgGzQ92OBn-qxaJ_RfsZO3I-9uezaQptlEXTxfeArxClACpTeLge-2goithpANEIVa00oVVYPzqvusVMYHH9pIO300PxofbkoR6unJt59wpaKQEXDGfPY0_l3hHmBKl2IVAYPxmwjSwV6WsDxVTU5dPAERIt7eKq0IKq5v5Bz-SYBZSoAzENoXIMmO0BYOgJT73MUoNrUNCfMfm3UxAJVNyK9hw",
+      "htmlPath": "./stitch-designs/jazzcash-tracker.html",
+      "imagePath": "./stitch-designs/jazzcash-tracker.png"
+    }
+  ],
+  "designSystem": {
+    "title": "Professional Personal Finance",
+    "assetId": "c44f6fcba3db48658c7b79d5574f80d8",
+    "name": "assets/c44f6fcba3db48658c7b79d5574f80d8",
+    "mdPath": "./stitch-designs/design-system.md",
+    "jsonPath": "./stitch-designs/design-system.json"
+  }
+}

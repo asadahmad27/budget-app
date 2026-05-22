@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Log Spending | Professional Modernism</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wallet-card-input:checked + label {
+            border-color: #031632;
+            background-color: #e5eeff;
+            transform: translateY(-2px);
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            background-color: #2c694e;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #aeeecb;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#aeeecb",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#44474d",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "on-primary-fixed": "#081b38",
+                        "on-primary-fixed-variant": "#374765",
+                        "primary-container": "#1a2b48",
+                        "secondary-fixed": "#b1f0ce",
+                        "on-tertiary-fixed": "#181c1e",
+                        "primary": "#031632",
+                        "surface-container": "#e5eeff",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "inverse-surface": "#213145",
+                        "background": "#f8f9ff",
+                        "secondary-fixed-dim": "#95d4b3",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-surface": "#0b1c30",
+                        "surface-tint": "#4e5f7e",
+                        "inverse-primary": "#b6c7eb",
+                        "on-secondary-fixed-variant": "#0e5138",
+                        "primary-fixed-dim": "#b6c7eb",
+                        "on-primary-container": "#8293b5",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#316e52",
+                        "primary-fixed": "#d7e2ff",
+                        "surface-container-low": "#eff4ff",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface": "#f8f9ff",
+                        "outline": "#75777e",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#002114",
+                        "outline-variant": "#c5c6ce",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-container": "#8f9395",
+                        "tertiary-fixed": "#e0e3e5",
+                        "secondary": "#2c694e",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-container": "#282c2e",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#131819",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#434749",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#dce9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "unit": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "container-max-width": "1200px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- Top Navigation Header (Suppressed as per task: Task-Focused screens use Back) -->
+<header class="bg-surface sticky top-0 z-50 flex justify-between items-center w-full px-margin-mobile py-unit h-16 max-w-container-max-width mx-auto">
+<button class="flex items-center gap-2 hover:bg-surface-container-low transition-colors p-2 rounded-full active:scale-95 duration-150" onclick="window.history.back()">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm-mobile font-bold text-primary">Log Spending</h1>
+<div class="w-10"></div> <!-- Spacer for symmetry -->
+</header>
+<main class="flex-grow flex items-center justify-center px-margin-mobile py-margin-desktop">
+<div class="max-w-2xl w-full">
+<div class="bg-surface-container-lowest rounded-xl shadow-md p-gutter border border-outline-variant/30">
+<form class="space-y-8" onsubmit="event.preventDefault(); alert('Spending Confirmed');">
+<!-- Large Amount Input -->
+<div class="text-center">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2" for="amount">Amount (PKR)</label>
+<div class="relative inline-flex items-center border-b-2 border-outline-variant focus-within:border-primary transition-all duration-300">
+<span class="font-headline-md text-headline-md text-primary pr-2">₨</span>
+<input class="bg-transparent border-none focus:ring-0 font-headline-md text-headline-md text-primary w-48 text-center placeholder-on-surface-variant/30" id="amount" name="amount" placeholder="0.00" required="" type="number"/>
+</div>
+</div>
+<!-- Wallet Selector -->
+<div class="space-y-3">
+<label class="block font-label-md text-label-md text-on-surface-variant">Select Wallet</label>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-unit">
+<!-- JazzCash -->
+<div class="relative">
+<input class="wallet-card-input absolute opacity-0 w-full h-full cursor-pointer" id="jazzcash" name="wallet" required="" type="radio" value="jazzcash"/>
+<label class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-outline-variant bg-surface transition-all duration-200 hover:border-primary" for="jazzcash">
+<span class="w-2 h-8 bg-[#FFD700] rounded-full mb-3 shadow-sm"></span> <!-- Brand color accent -->
+<span class="font-label-md text-label-md">JazzCash</span>
+</label>
+</div>
+<!-- NayaPay -->
+<div class="relative">
+<input class="wallet-card-input absolute opacity-0 w-full h-full cursor-pointer" id="nayapay" name="wallet" type="radio" value="nayapay"/>
+<label class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-outline-variant bg-surface transition-all duration-200 hover:border-primary" for="nayapay">
+<span class="w-2 h-8 bg-[#F37021] rounded-full mb-3 shadow-sm"></span>
+<span class="font-label-md text-label-md">NayaPay</span>
+</label>
+</div>
+<!-- Meezan -->
+<div class="relative">
+<input class="wallet-card-input absolute opacity-0 w-full h-full cursor-pointer" id="meezan" name="wallet" type="radio" value="meezan"/>
+<label class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-outline-variant bg-surface transition-all duration-200 hover:border-primary" for="meezan">
+<span class="w-2 h-8 bg-[#800000] rounded-full mb-3 shadow-sm"></span>
+<span class="font-label-md text-label-md">Meezan</span>
+</label>
+</div>
+</div>
+</div>
+<!-- Category Selector & Status -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter items-end">
+<div class="space-y-3">
+<label class="block font-label-md text-label-md text-on-surface-variant" for="category">Spending Category</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-none rounded-lg p-3 font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer" id="category" name="category">
+<option disabled="" selected="" value="">Select a category</option>
+<option value="groceries">Groceries</option>
+<option value="rent">Rent &amp; Utilities</option>
+<option value="dining">Dining Out</option>
+<option value="travel">Travel</option>
+<option value="health">Healthcare</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+<div class="bg-surface-container p-4 rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Remaining</span>
+</div>
+<span class="font-label-md text-label-md text-secondary font-bold">3,500 PKR</span>
+</div>
+</div>
+<!-- Toggle Switch -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Partial Payment</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Log this as a split transaction?</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-outline-variant outline-none transition-all duration-200 right-6" id="toggle" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-outline-variant cursor-pointer transition-all duration-200" for="toggle"></label>
+</div>
+</div>
+<!-- Action Button -->
+<div class="pt-4">
+<button class="w-full bg-primary text-on-primary font-headline-sm py-4 rounded-xl shadow-lg hover:bg-primary-container active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined">check_circle</span>
+                            Confirm Spending
+                        </button>
+</div>
+</form>
+</div>
+<!-- Contextual Helper -->
+<p class="mt-gutter text-center font-label-sm text-label-sm text-on-tertiary-container max-w-sm mx-auto">
+                Updating your spend will automatically synchronize balances across your JazzCash, NayaPay, and Meezan linked accounts.
+            </p>
+</div>
+</main>
+<!-- Visual Polish: Background Elements -->
+<div class="fixed top-20 right-[-10%] w-[40%] h-[40%] bg-surface-container-highest rounded-full blur-[120px] -z-10 opacity-50"></div>
+<div class="fixed bottom-0 left-[-10%] w-[30%] h-[30%] bg-secondary-fixed/20 rounded-full blur-[100px] -z-10 opacity-30"></div>
+<script>
+        // Micro-interaction for Amount Input: Add commas as user types
+        const amountInput = document.getElementById('amount');
+        amountInput.addEventListener('input', (e) => {
+            // Keep numeric only logic for the value, visual display can be handled by formatting if desired
+            // Simple placeholder logic for demo
+            const val = e.target.value;
+            if(val > 3500) {
+                document.querySelector('.text-secondary').classList.replace('text-secondary', 'text-error');
+            } else {
+                document.querySelector('.text-error')?.classList.replace('text-error', 'text-secondary');
+            }
+        });
+
+        // Toggle animation fix
+        const toggle = document.getElementById('toggle');
+        toggle.addEventListener('change', function() {
+            const circle = this;
+            if(this.checked) {
+                circle.classList.add('translate-x-full');
+            } else {
+                circle.classList.remove('translate-x-full');
+            }
+        });
+    </script>
+</body></html>

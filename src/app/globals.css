@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #031632;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1a2b48;
+  --color-on-primary-container: #8293b5;
+  --color-secondary: #2c694e;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #aeeecb;
+  --color-on-secondary-container: #316e52;
+  --color-surface: #f8f9ff;
+  --color-surface-dim: #cbdbf5;
+  --color-surface-container: #e5eeff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container-high: #dce9ff;
+  --color-surface-container-highest: #d3e4fe;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface: #0b1c30;
+  --color-on-surface-variant: #44474d;
+  --color-background: #f8f9ff;
+  --color-on-background: #0b1c30;
+  --color-outline: #75777e;
+  --color-outline-variant: #c5c6ce;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 32px;
+  --spacing-container-max-width: 1200px;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-on-surface font-sans antialiased;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}

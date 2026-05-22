@@ -1,0 +1,134 @@
+{
+  "name": "assets/c44f6fcba3db48658c7b79d5574f80d8",
+  "version": "1",
+  "displayName": "Professional Personal Finance",
+  "styleGuidelines": "## Brand & Style\nThe design system is anchored in the principles of **Professional Modernism**. It prioritizes clarity, trustworthiness, and visual calm to mitigate the cognitive load often associated with financial management. The aesthetic leans into a \"Corporate Modern\" style—combining the reliability of traditional banking with the agility of a modern fintech startup.\n\nThe target audience ranges from young professionals to seasoned investors who require a high-utility interface that feels premium yet accessible. By utilizing generous whitespace and a restrained color palette, the system ensures that critical financial data remains the focal point, fostering an emotional response of control and confidence.\n\n## Layout & Spacing\nThe layout is built on an **8px grid system**, ensuring mathematical harmony across all components.\n- **Desktop:** A 12-column fixed grid with a max width of 1200px. This prevents financial dashboards from stretching too far, which can make data scanning difficult.\n- **Mobile:** A fluid, single-column layout with 16px side margins.\n- **Rhythm:** Generous vertical padding (32px - 48px) is used between sections (e.g., between the \"Total Balance\" and \"Recent Transactions\") to create the \"less overwhelming\" feel requested.\n\n## Elevation & Depth\nThe design system uses **Ambient Shadows** to create a sense of organized layering without the harshness of heavy borders.\n- **Level 1 (Cards):** Small, diffused shadow (0px 4px 12px rgba(26, 43, 72, 0.05)) to lift transaction cards from the background.\n- **Level 2 (Modals/Inputs):** Medium shadow (0px 8px 24px rgba(26, 43, 72, 0.10)) to indicate active focus or system overlays.\n- **Tonal Layers:** We prefer using subtle background color shifts (e.g., a Tertiary Gray background for the main app area and White for the interactive cards) over complex shadow stacks.\n\n## Components\n- **Wallet Cards:** Specialized containers for JazzCash, NayaPay, and Meezan. Each should feature the institution's brand color as a subtle top-border or logo mark, but maintain the design system's typography and soft-shadow container.\n- **Category Progress Bars:** A dual-track system. The background track is a light gray (#E2E8F0), while the active track uses Emerald Green for \"under budget\" and a soft muted red for \"over budget.\"\n- **Transaction Input Form:** Features large, clear input fields with 16px internal padding. Labels are positioned above the field in `label-md`. The \"Amount\" input should be prominent, using `headline-md` typography.\n- **Buttons:** Primary buttons are Solid Navy with White text. Secondary buttons use a ghost style (Navy outline) or a subtle gray background.\n- **Chips:** Used for transaction categories (e.g., \"Food,\" \"Travel\"). These use a light tint of the primary color with a small icon prefix.",
+  "theme": {
+    "bodyFont": "INTER",
+    "bodyFontFamily": "Inter",
+    "colorMode": "LIGHT",
+    "colorVariant": "FIDELITY",
+    "customColor": "#1a2b48",
+    "designMd": "---\nname: Professional Personal Finance\ncolors:\n  surface: '#f8f9ff'\n  surface-dim: '#cbdbf5'\n  surface-bright: '#f8f9ff'\n  surface-container-lowest: '#ffffff'\n  surface-container-low: '#eff4ff'\n  surface-container: '#e5eeff'\n  surface-container-high: '#dce9ff'\n  surface-container-highest: '#d3e4fe'\n  on-surface: '#0b1c30'\n  on-surface-variant: '#44474d'\n  inverse-surface: '#213145'\n  inverse-on-surface: '#eaf1ff'\n  outline: '#75777e'\n  outline-variant: '#c5c6ce'\n  surface-tint: '#4e5f7e'\n  primary: '#031632'\n  on-primary: '#ffffff'\n  primary-container: '#1a2b48'\n  on-primary-container: '#8293b5'\n  inverse-primary: '#b6c7eb'\n  secondary: '#2c694e'\n  on-secondary: '#ffffff'\n  secondary-container: '#aeeecb'\n  on-secondary-container: '#316e52'\n  tertiary: '#131819'\n  on-tertiary: '#ffffff'\n  tertiary-container: '#282c2e'\n  on-tertiary-container: '#8f9395'\n  error: '#ba1a1a'\n  on-error: '#ffffff'\n  error-container: '#ffdad6'\n  on-error-container: '#93000a'\n  primary-fixed: '#d7e2ff'\n  primary-fixed-dim: '#b6c7eb'\n  on-primary-fixed: '#081b38'\n  on-primary-fixed-variant: '#374765'\n  secondary-fixed: '#b1f0ce'\n  secondary-fixed-dim: '#95d4b3'\n  on-secondary-fixed: '#002114'\n  on-secondary-fixed-variant: '#0e5138'\n  tertiary-fixed: '#e0e3e5'\n  tertiary-fixed-dim: '#c4c7c9'\n  on-tertiary-fixed: '#181c1e'\n  on-tertiary-fixed-variant: '#434749'\n  background: '#f8f9ff'\n  on-background: '#0b1c30'\n  surface-variant: '#d3e4fe'\ntypography:\n  headline-lg:\n    fontFamily: Inter\n    fontSize: 32px\n    fontWeight: '700'\n    lineHeight: 40px\n    letterSpacing: -0.02em\n  headline-lg-mobile:\n    fontFamily: Inter\n    fontSize: 24px\n    fontWeight: '700'\n    lineHeight: 32px\n    letterSpacing: -0.01em\n  headline-md:\n    fontFamily: Inter\n    fontSize: 24px\n    fontWeight: '600'\n    lineHeight: 32px\n  headline-sm:\n    fontFamily: Inter\n    fontSize: 20px\n    fontWeight: '600'\n    lineHeight: 28px\n  body-lg:\n    fontFamily: Inter\n    fontSize: 18px\n    fontWeight: '400'\n    lineHeight: 28px\n  body-md:\n    fontFamily: Inter\n    fontSize: 16px\n    fontWeight: '400'\n    lineHeight: 24px\n  label-md:\n    fontFamily: Inter\n    fontSize: 14px\n    fontWeight: '500'\n    lineHeight: 20px\n    letterSpacing: 0.01em\n  label-sm:\n    fontFamily: Inter\n    fontSize: 12px\n    fontWeight: '500'\n    lineHeight: 16px\nrounded:\n  sm: 0.25rem\n  DEFAULT: 0.5rem\n  md: 0.75rem\n  lg: 1rem\n  xl: 1.5rem\n  full: 9999px\nspacing:\n  unit: 8px\n  container-max-width: 1200px\n  gutter: 24px\n  margin-mobile: 16px\n  margin-desktop: 32px\n---\n\n## Brand & Style\nThe design system is anchored in the principles of **Professional Modernism**. It prioritizes clarity, trustworthiness, and visual calm to mitigate the cognitive load often associated with financial management. The aesthetic leans into a \"Corporate Modern\" style—combining the reliability of traditional banking with the agility of a modern fintech startup.\n\nThe target audience ranges from young professionals to seasoned investors who require a high-utility interface that feels premium yet accessible. By utilizing generous whitespace and a restrained color palette, the system ensures that critical financial data remains the focal point, fostering an emotional response of control and confidence.\n\n## Colors\nThe color strategy employs a \"Safety & Growth\" hierarchy:\n- **Primary (Deep Navy):** Used for structural elements, primary buttons, and navigation to establish authority and stability.\n- **Secondary (Emerald Green):** Reserved exclusively for positive financial indicators—savings growth, income, and successful transactions.\n- **Neutral (Subtle Grays):** A scale of cool grays used for secondary text, borders, and backgrounds to maintain a clean, airy environment.\n- **Backgrounds:** The primary surface uses a soft off-white (#FAFAFB) to reduce glare and improve long-term readability.\n\n## Typography\nThis design system utilizes **Inter** for all roles to ensure maximum legibility across data-heavy screens. \n- **Numerical Data:** Financial figures should utilize `tabular-nums` (font-variant-numeric) to ensure digits align vertically in lists and tables.\n- **Hierarchical Weight:** Headlines use a semi-bold or bold weight (600-700) to stand out against the deep navy background. \n- **Mobile Scaling:** Large headlines are reduced on mobile to prevent awkward text wrapping in transaction lists.\n\n## Layout & Spacing\nThe layout is built on an **8px grid system**, ensuring mathematical harmony across all components.\n- **Desktop:** A 12-column fixed grid with a max width of 1200px. This prevents financial dashboards from stretching too far, which can make data scanning difficult.\n- **Mobile:** A fluid, single-column layout with 16px side margins.\n- **Rhythm:** Generous vertical padding (32px - 48px) is used between sections (e.g., between the \"Total Balance\" and \"Recent Transactions\") to create the \"less overwhelming\" feel requested.\n\n## Elevation & Depth\nThe design system uses **Ambient Shadows** to create a sense of organized layering without the harshness of heavy borders.\n- **Level 1 (Cards):** Small, diffused shadow (0px 4px 12px rgba(26, 43, 72, 0.05)) to lift transaction cards from the background.\n- **Level 2 (Modals/Inputs):** Medium shadow (0px 8px 24px rgba(26, 43, 72, 0.10)) to indicate active focus or system overlays.\n- **Tonal Layers:** We prefer using subtle background color shifts (e.g., a Tertiary Gray background for the main app area and White for the interactive cards) over complex shadow stacks.\n\n## Shapes\nA **Rounded (0.5rem / 8px)** shape language is applied across the system. This radius provides a modern, approachable feel while maintaining enough structure to appear professional.\n- **Buttons and Inputs:** Fixed at 8px radius.\n- **Wallet Cards:** Use `rounded-xl` (1.5rem / 24px) to mimic the physical form of plastic credit/debit cards.\n- **Progress Bars:** Use fully pill-shaped (rounded-full) caps for a smoother, more \"fluid\" visual representation of budget tracking.\n\n## Components\n- **Wallet Cards:** Specialized containers for JazzCash, NayaPay, and Meezan. Each should feature the institution's brand color as a subtle top-border or logo mark, but maintain the design system's typography and soft-shadow container.\n- **Category Progress Bars:** A dual-track system. The background track is a light gray (#E2E8F0), while the active track uses Emerald Green for \"under budget\" and a soft muted red for \"over budget.\"\n- **Transaction Input Form:** Features large, clear input fields with 16px internal padding. Labels are positioned above the field in `label-md`. The \"Amount\" input should be prominent, using `headline-md` typography.\n- **Buttons:** Primary buttons are Solid Navy with White text. Secondary buttons use a ghost style (Navy outline) or a subtle gray background.\n- **Chips:** Used for transaction categories (e.g., \"Food,\" \"Travel\"). These use a light tint of the primary color with a small icon prefix.",
+    "font": "INTER",
+    "headlineFont": "INTER",
+    "headlineFontFamily": "Inter",
+    "labelFont": "INTER",
+    "labelFontFamily": "Inter",
+    "namedColors": {
+      "background": "#f8f9ff",
+      "error": "#ba1a1a",
+      "error_container": "#ffdad6",
+      "inverse_on_surface": "#eaf1ff",
+      "inverse_primary": "#b6c7eb",
+      "inverse_surface": "#213145",
+      "on_background": "#0b1c30",
+      "on_error": "#ffffff",
+      "on_error_container": "#93000a",
+      "on_primary": "#ffffff",
+      "on_primary_container": "#8293b5",
+      "on_primary_fixed": "#081b38",
+      "on_primary_fixed_variant": "#374765",
+      "on_secondary": "#ffffff",
+      "on_secondary_container": "#316e52",
+      "on_secondary_fixed": "#002114",
+      "on_secondary_fixed_variant": "#0e5138",
+      "on_surface": "#0b1c30",
+      "on_surface_variant": "#44474d",
+      "on_tertiary": "#ffffff",
+      "on_tertiary_container": "#8f9395",
+      "on_tertiary_fixed": "#181c1e",
+      "on_tertiary_fixed_variant": "#434749",
+      "outline": "#75777e",
+      "outline_variant": "#c5c6ce",
+      "primary": "#031632",
+      "primary_container": "#1a2b48",
+      "primary_fixed": "#d7e2ff",
+      "primary_fixed_dim": "#b6c7eb",
+      "secondary": "#2c694e",
+      "secondary_container": "#aeeecb",
+      "secondary_fixed": "#b1f0ce",
+      "secondary_fixed_dim": "#95d4b3",
+      "surface": "#f8f9ff",
+      "surface_bright": "#f8f9ff",
+      "surface_container": "#e5eeff",
+      "surface_container_high": "#dce9ff",
+      "surface_container_highest": "#d3e4fe",
+      "surface_container_low": "#eff4ff",
+      "surface_container_lowest": "#ffffff",
+      "surface_dim": "#cbdbf5",
+      "surface_tint": "#4e5f7e",
+      "surface_variant": "#d3e4fe",
+      "tertiary": "#131819",
+      "tertiary_container": "#282c2e",
+      "tertiary_fixed": "#e0e3e5",
+      "tertiary_fixed_dim": "#c4c7c9"
+    },
+    "overrideNeutralColor": "#64748b",
+    "overridePrimaryColor": "#1a2b48",
+    "overrideSecondaryColor": "#2d6a4f",
+    "overrideTertiaryColor": "#f4f7f9",
+    "roundness": "ROUND_EIGHT",
+    "spacing": {
+      "container-max-width": "1200px",
+      "gutter": "24px",
+      "margin-desktop": "32px",
+      "margin-mobile": "16px",
+      "unit": "8px"
+    },
+    "spacingScale": 2,
+    "typography": {
+      "body-lg": {
+        "fontFamily": "Inter",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "lineHeight": "28px"
+      },
+      "body-md": {
+        "fontFamily": "Inter",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px"
+      },
+      "headline-lg": {
+        "fontFamily": "Inter",
+        "fontSize": "32px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.02em",
+        "lineHeight": "40px"
+      },
+      "headline-lg-mobile": {
+        "fontFamily": "Inter",
+        "fontSize": "24px",
+        "fontWeight": "700",
+        "letterSpacing": "-0.01em",
+        "lineHeight": "32px"
+      },
+      "headline-md": {
+        "fontFamily": "Inter",
+        "fontSize": "24px",
+        "fontWeight": "600",
+        "lineHeight": "32px"
+      },
+      "headline-sm": {
+        "fontFamily": "Inter",
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "lineHeight": "28px"
+      },
+      "label-md": {
+        "fontFamily": "Inter",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "letterSpacing": "0.01em",
+        "lineHeight": "20px"
+      },
+      "label-sm": {
+        "fontFamily": "Inter",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "lineHeight": "16px"
+      }
+    }
+  }
+}

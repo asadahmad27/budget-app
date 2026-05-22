@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Financial Overview - August 2024</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#aeeecb",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#44474d",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "on-primary-fixed": "#081b38",
+                      "on-primary-fixed-variant": "#374765",
+                      "primary-container": "#1a2b48",
+                      "secondary-fixed": "#b1f0ce",
+                      "on-tertiary-fixed": "#181c1e",
+                      "primary": "#031632",
+                      "surface-container": "#e5eeff",
+                      "on-error": "#ffffff",
+                      "surface-bright": "#f8f9ff",
+                      "inverse-surface": "#213145",
+                      "background": "#f8f9ff",
+                      "secondary-fixed-dim": "#95d4b3",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-surface": "#0b1c30",
+                      "surface-tint": "#4e5f7e",
+                      "inverse-primary": "#b6c7eb",
+                      "on-secondary-fixed-variant": "#0e5138",
+                      "primary-fixed-dim": "#b6c7eb",
+                      "on-primary-container": "#8293b5",
+                      "on-error-container": "#93000a",
+                      "on-secondary-container": "#316e52",
+                      "primary-fixed": "#d7e2ff",
+                      "surface-container-low": "#eff4ff",
+                      "on-background": "#0b1c30",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface": "#f8f9ff",
+                      "outline": "#75777e",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed": "#002114",
+                      "outline-variant": "#c5c6ce",
+                      "surface-variant": "#d3e4fe",
+                      "on-tertiary-container": "#8f9395",
+                      "tertiary-fixed": "#e0e3e5",
+                      "secondary": "#2c694e",
+                      "surface-dim": "#cbdbf5",
+                      "tertiary-container": "#282c2e",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#131819",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#434749",
+                      "error": "#ba1a1a",
+                      "surface-container-high": "#dce9ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "unit": "8px",
+                      "margin-mobile": "16px",
+                      "gutter": "24px",
+                      "container-max-width": "1200px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
+        .shadow-ambient { shadow: 0px 4px 12px rgba(26, 43, 72, 0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-surface dark:bg-surface-dim transition-colors">
+<div class="flex justify-between items-center w-full px-margin-mobile py-unit h-16 max-w-container-max-width mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed">
+<img alt="User" class="w-full h-full object-cover" data-alt="A professional headshot of a young man with a confident expression, set against a soft-focus office background. The lighting is bright and clean, emphasizing a modern light-mode aesthetic with cool blue tones and crisp whites. High-end photography style with shallow depth of field and sharp details on the subject." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9LarI2iQ3DDZTerprVNL4qsc1J7Mz2QE-47nzYSbBbQ3mrXS8obf68yK79UkIdjIxWUfHI_DmmhaqEZxbFyTMmn4B5TyWAobfkDHHfrnGKtAzmOJFOlf0NuUmtv--lbYUU6T4b0n1jmcIuUM9ORLEI03vEFOHLcX8k7mafPoucyn0h09y-6rxrRp_sZiVXbgF1ROrMuB5IAP9d77RWz28syAhaO_c_XkDw1D_lXqxPS6eoGIcXY8LW69Jz4cAycZrD8B7wYdPZR9s"/>
+</div>
+<h1 class="font-headline-sm text-headline-sm-mobile font-bold text-primary dark:text-primary-fixed">August 2024</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-primary dark:text-primary-fixed hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-container-max-width mx-auto px-margin-mobile pt-6 space-y-8">
+<!-- Total Funds Hero -->
+<section class="relative overflow-hidden rounded-xl bg-primary-container p-8 text-on-primary">
+<div class="relative z-10">
+<p class="font-label-md text-label-md text-on-primary-container opacity-80 mb-1">Total Funds</p>
+<h2 class="font-headline-lg text-headline-lg-mobile text-on-primary">140,000 PKR</h2>
+<div class="mt-6 flex gap-4">
+<div class="flex items-center gap-2 px-3 py-1 bg-secondary/20 rounded-full">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span class="font-label-sm text-label-sm">+12% vs last month</span>
+</div>
+</div>
+</div>
+<!-- Decorative Elements -->
+<div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-secondary-container/10 rounded-full blur-3xl"></div>
+<div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-48 h-48 bg-surface-tint/20 rounded-full blur-2xl"></div>
+</section>
+<!-- Wallet Cards Carousel -->
+<section>
+<div class="flex justify-between items-end mb-4">
+<h3 class="font-headline-sm text-primary">Connected Wallets</h3>
+<button class="font-label-md text-secondary hover:underline">View All</button>
+</div>
+<div class="flex overflow-x-auto no-scrollbar gap-gutter pb-4 -mx-margin-mobile px-margin-mobile snap-x">
+<!-- NayaPay Card -->
+<div class="flex-none w-72 snap-start">
+<div class="bg-surface-container-lowest p-6 rounded-xl border-t-4 border-[#ff6b00] shadow-[0px_4px_12px_rgba(26,43,72,0.05)] transition-transform hover:-translate-y-1 duration-300">
+<div class="flex justify-between items-start mb-8">
+<div class="bg-surface-container w-10 h-10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<span class="font-label-sm text-on-surface-variant">NayaPay</span>
+</div>
+<p class="font-label-md text-on-surface-variant mb-1">Current Balance</p>
+<h4 class="font-headline-md text-on-surface mb-2">104,000 PKR</h4>
+<div class="flex items-center gap-1.5 text-[#316e52]">
+<span class="material-symbols-outlined text-sm" data-icon="history">history</span>
+<p class="font-label-sm text-label-sm">4k rollover included</p>
+</div>
+</div>
+</div>
+<!-- JazzCash Card -->
+<div class="flex-none w-72 snap-start">
+<div class="bg-surface-container-lowest p-6 rounded-xl border-t-4 border-[#d11111] shadow-[0px_4px_12px_rgba(26,43,72,0.05)] transition-transform hover:-translate-y-1 duration-300">
+<div class="flex justify-between items-start mb-8">
+<div class="bg-surface-container w-10 h-10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="payments">payments</span>
+</div>
+<span class="font-label-sm text-on-surface-variant">JazzCash</span>
+</div>
+<p class="font-label-md text-on-surface-variant mb-1">Current Balance</p>
+<h4 class="font-headline-md text-on-surface mb-2">15,000 PKR</h4>
+<p class="font-label-sm text-on-surface-variant opacity-60">Last synced: 2h ago</p>
+</div>
+</div>
+<!-- Meezan Bank Card -->
+<div class="flex-none w-72 snap-start">
+<div class="bg-surface-container-lowest p-6 rounded-xl border-t-4 border-[#0e5138] shadow-[0px_4px_12px_rgba(26,43,72,0.05)] transition-transform hover:-translate-y-1 duration-300">
+<div class="flex justify-between items-start mb-8">
+<div class="bg-surface-container w-10 h-10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="account_balance">account_balance</span>
+</div>
+<span class="font-label-sm text-on-surface-variant">Meezan Bank</span>
+</div>
+<p class="font-label-md text-on-surface-variant mb-1">Current Balance</p>
+<h4 class="font-headline-md text-on-surface mb-2">25,000 PKR</h4>
+<p class="font-label-sm text-on-surface-variant opacity-60">Savings Account</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Upcoming Expenses Section -->
+<section class="space-y-4">
+<h3 class="font-headline-sm text-primary">Upcoming Expenses</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Expense Item 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-[0px_4px_12px_rgba(26,43,72,0.05)]">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+</div>
+<div>
+<h5 class="font-headline-sm text-[16px] text-on-surface">Monthly Rent</h5>
+<p class="font-label-sm text-on-surface-variant">Due in 5 days</p>
+</div>
+</div>
+<p class="font-headline-sm text-[16px] text-primary">28,000 PKR</p>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Reserved</span>
+<span class="text-secondary font-bold">22,000 / 28,000</span>
+</div>
+<div class="h-2 w-full bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-secondary transition-all duration-1000 ease-out" style="width: 78%"></div>
+</div>
+</div>
+</div>
+<!-- Expense Item 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-[0px_4px_12px_rgba(26,43,72,0.05)]">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="gas_meter">gas_meter</span>
+</div>
+<div>
+<h5 class="font-headline-sm text-[16px] text-on-surface">Cylinder Refill</h5>
+<p class="font-label-sm text-on-surface-variant">Expected next week</p>
+</div>
+</div>
+<p class="font-headline-sm text-[16px] text-primary">5,000 PKR</p>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Reserved</span>
+<span class="text-secondary font-bold">5,000 / 5,000</span>
+</div>
+<div class="h-2 w-full bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-secondary transition-all duration-1000 ease-out" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Activity Placeholder for Context -->
+<section class="pb-10">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline-sm text-primary">Recent Transactions</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="filter_list">filter_list</span>
+</div>
+<div class="space-y-2">
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+<span class="material-symbols-outlined text-error" data-icon="shopping_cart">shopping_cart</span>
+</div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Groceries</p>
+<p class="font-label-sm text-on-surface-variant">Aug 14 • NayaPay</p>
+</div>
+</div>
+<p class="font-body-md font-bold text-error">-2,450 PKR</p>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="add_circle">add_circle</span>
+</div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Salary Deposit</p>
+<p class="font-label-sm text-on-surface-variant">Aug 01 • Meezan Bank</p>
+</div>
+</div>
+<p class="font-body-md font-bold text-secondary">+125,000 PKR</p>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB for Transaction -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-90 transition-all z-40">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant dark:border-none rounded-t-xl shadow-md">
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-full px-5 py-1 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-sm text-label-sm-mobile">Overview</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-label-sm text-label-sm-mobile">Wallets</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="category">category</span>
+<span class="font-label-sm text-label-sm-mobile">Categories</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm-mobile">Settings</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for the cards
+        const cards = document.querySelectorAll('.snap-start');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Dynamic greeting based on time of day (Atmospheric effect)
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = "Good Morning";
+            if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
+            else if (hour >= 17) greeting = "Good Evening";
+            
+            // Console log or subtle UI injection could go here
+            console.log(`${greeting}, your August overview is ready.`);
+        });
+    </script>
+</body></html>
