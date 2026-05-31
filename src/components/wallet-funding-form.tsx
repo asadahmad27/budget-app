@@ -2,28 +2,35 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { LogFundsForm } from "@/components/log-funds-form";
+import { formatMoney } from "@/lib/format";
 
 export function WalletFundingForm({
   walletId,
+  walletName,
   year,
   month,
   openingBalance,
   addedAmount,
 }: {
   walletId: string;
+  walletName: string;
   year: number;
   month: number;
   openingBalance: number;
   addedAmount: number;
 }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const returnTo = `/wallets?wallet=${walletId}&year=${year}&month=${month}`;
+  const [rolloverLoading, setRolloverLoading] = useState(false);
+  const [rolloverError, setRolloverError] = useState<string | null>(null);
+  const [rolloverSaved, setRolloverSaved] = useState(false);
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function saveOpeningBalance(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setLoading(true);
-    setMessage(null);
+    setRolloverLoading(true);
+    setRolloverError(null);
+    setRolloverSaved(false);
 
     const formData = new FormData(event.currentTarget);
     const response = await fetch("/api/wallets/funding", {
@@ -34,72 +41,103 @@ export function WalletFundingForm({
         year,
         month,
         openingBalance: Number(formData.get("openingBalance")),
-        addedAmount: Number(formData.get("addedAmount")),
+        addedAmount,
       }),
     });
 
-    setLoading(false);
+    setRolloverLoading(false);
 
     if (!response.ok) {
       const data = await response.json();
-      setMessage(data.error ?? "Unable to update wallet funding");
+      setRolloverError(data.error ?? "Unable to update rollover balance");
       return;
     }
 
-    setMessage("Wallet funding updated.");
+    setRolloverSaved(true);
     router.refresh();
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6"
-    >
-      <h3 className="text-lg font-semibold text-primary">Monthly Wallet Funding</h3>
-      <p className="mt-1 text-sm text-on-surface-variant">
-        Opening balance includes rollover from the previous month.
-      </p>
-
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="space-y-4">
+      <section className="space-y-4 rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6">
         <div>
-          <label className="mb-2 block text-sm font-medium" htmlFor="openingBalance">
-            Opening balance
-          </label>
-          <input
-            id="openingBalance"
-            name="openingBalance"
-            type="number"
-            min="0"
-            step="1"
-            defaultValue={openingBalance}
-            className="w-full rounded-lg border border-outline-variant px-4 py-3"
-          />
+          <h3 className="text-lg font-semibold text-primary">Rollover balance</h3>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Set the opening balance for {walletName} this month — leftover cash
+            carried from last month or a manual starting amount.
+          </p>
         </div>
+
+        <form onSubmit={saveOpeningBalance} className="space-y-4">
+          <div>
+            <label
+              className="mb-2 block text-sm font-medium"
+              htmlFor="openingBalance"
+            >
+              Opening balance (incl. rollover)
+            </label>
+            <input
+              id="openingBalance"
+              name="openingBalance"
+              type="number"
+              min="0"
+              step="1"
+              key={openingBalance}
+              defaultValue={openingBalance}
+              onChange={() => setRolloverSaved(false)}
+              className="w-full rounded-lg border border-outline-variant/40 bg-surface-container-lowest px-3 py-2 text-sm"
+            />
+          </div>
+
+          {rolloverError ? (
+            <p className="text-sm text-error">{rolloverError}</p>
+          ) : null}
+          {rolloverSaved ? (
+            <p className="text-sm text-secondary">Rollover balance saved.</p>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={rolloverLoading}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary disabled:opacity-60"
+          >
+            {rolloverLoading ? "Saving..." : "Save rollover balance"}
+          </button>
+        </form>
+      </section>
+
+      <section className="space-y-4 rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6">
         <div>
-          <label className="mb-2 block text-sm font-medium" htmlFor="addedAmount">
-            Added this month
-          </label>
-          <input
-            id="addedAmount"
-            name="addedAmount"
-            type="number"
-            min="0"
-            step="1"
-            defaultValue={addedAmount}
-            className="w-full rounded-lg border border-outline-variant px-4 py-3"
-          />
+          <h3 className="text-lg font-semibold text-primary">Add funds</h3>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Log money received into {walletName}. Each entry adds to this
+            month&apos;s balance.
+          </p>
         </div>
-      </div>
 
-      {message ? <p className="mt-3 text-sm text-secondary">{message}</p> : null}
+        <div className="grid grid-cols-2 gap-4 rounded-lg bg-surface-container-low p-4 text-sm">
+          <div>
+            <p className="text-on-surface-variant">Opening (incl. rollover)</p>
+            <p className="font-semibold">{formatMoney(openingBalance)}</p>
+          </div>
+          <div>
+            <p className="text-on-surface-variant">Added this month</p>
+            <p className="font-semibold text-secondary">
+              {formatMoney(addedAmount)}
+            </p>
+          </div>
+        </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="mt-4 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-on-primary disabled:opacity-60"
-      >
-        {loading ? "Saving..." : "Save funding"}
-      </button>
-    </form>
+        <LogFundsForm
+          year={year}
+          month={month}
+          wallets={[{ id: walletId, name: walletName, color: "#1a2b48" }]}
+          initialWalletId={walletId}
+          returnTo={returnTo}
+          currentAdded={addedAmount}
+          embedded
+        />
+      </section>
+    </div>
   );
 }

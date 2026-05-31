@@ -1,9 +1,12 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { ActivePeriodSync } from "@/components/active-period-sync";
 import { AppShell } from "@/components/app-shell";
-import { MonthSwitcher } from "@/components/month-switcher";
+// import { BudgetPeriodForm } from "@/components/budget-period-form";
+import { DashboardMonthSwitcher } from "@/components/dashboard-month-nav";
 import { TransactionList } from "@/components/transaction-list";
-import { getDashboardData } from "@/lib/budget";
-import { formatMoney, formatMonthLabel, parsePeriod } from "@/lib/format";
+import { getDashboardData, resolvePeriodContext } from "@/lib/budget";
+import { formatMoney } from "@/lib/format";
 import { getSession } from "@/lib/session";
 
 export default async function DashboardPage({
@@ -15,13 +18,8 @@ export default async function DashboardPage({
   if (!session) return null;
 
   const params = await searchParams;
-  const period = parsePeriod(params);
-  const data = await getDashboardData(
-    session.userId,
-    period.year,
-    period.month,
-  );
-  const monthLabel = formatMonthLabel(period.year, period.month);
+  const period = await resolvePeriodContext(session.userId, params);
+  const data = await getDashboardData(session.userId, period.year, period.month);
 
   const topCategories = [...data.categories]
     .filter((category) => category.budgetAmount > 0)
@@ -31,15 +29,34 @@ export default async function DashboardPage({
   return (
     <AppShell
       header={
-        <MonthSwitcher
+        <DashboardMonthSwitcher
           year={period.year}
           month={period.month}
-          label={monthLabel}
-          basePath="/dashboard"
+          label={period.label}
+          // range={period.range}
         />
       }
     >
+      <Suspense fallback={null}>
+        <ActivePeriodSync />
+      </Suspense>
       <div className="space-y-8 pb-8">
+        {/* Budget period config hidden for now
+        <section className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6">
+          <h3 className="text-lg font-semibold text-primary">Budget period</h3>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Set when this month starts and ends. Spending you log below is saved
+            to {period.label}.
+          </p>
+          <BudgetPeriodForm
+            budgetPeriodStartDay={period.budgetPeriodStartDay}
+            budgetPeriodEndDay={period.budgetPeriodEndDay}
+            previewYear={period.year}
+            previewMonth={period.month}
+          />
+        </section>
+        */}
+
         <section className="relative overflow-hidden rounded-xl bg-primary-container p-8 text-on-primary">
           <p className="mb-1 text-sm text-on-primary-container/80">
             Total Funds
@@ -176,6 +193,9 @@ export default async function DashboardPage({
           </div>
           <TransactionList
             transactions={data.transactions}
+            budgetYear={period.year}
+            budgetMonth={period.month}
+            budgetLabel={period.label}
             wallets={data.wallets.map((wallet) => ({
               id: wallet.id,
               name: wallet.name,

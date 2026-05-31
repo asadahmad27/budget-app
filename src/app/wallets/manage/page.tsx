@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { WalletCatalogPicker } from "@/components/wallet-catalog-picker";
-import { getWalletCatalogForUser } from "@/lib/budget";
-import { parsePeriod } from "@/lib/format";
+import { getWalletCatalogForUser, resolvePeriodContext } from "@/lib/budget";
 import { getSession } from "@/lib/session";
 
 export default async function ManageWalletsPage({
@@ -14,7 +13,7 @@ export default async function ManageWalletsPage({
   if (!session) return null;
 
   const params = await searchParams;
-  const period = parsePeriod(params);
+  const period = await resolvePeriodContext(session.userId, params);
   const catalog = await getWalletCatalogForUser(session.userId);
 
   return (
@@ -22,7 +21,8 @@ export default async function ManageWalletsPage({
       title="Add Wallets"
       showFab={false}
       breadcrumbs={[
-        { label: "Home", href: `/dashboard?year=${period.year}&month=${period.month}` },
+        { label: "Months", href: "/months" },
+        { label: "Dashboard", href: `/dashboard?year=${period.year}&month=${period.month}` },
         { label: "Wallets", href: `/wallets?year=${period.year}&month=${period.month}` },
         { label: "Add Wallets" },
       ]}

@@ -1,7 +1,8 @@
 import { AppShell } from "@/components/app-shell";
 import { LogTransactionForm } from "@/components/log-transaction-form";
+import { resolvePeriodContext } from "@/lib/budget";
 import { db } from "@/lib/db";
-import { parsePeriod } from "@/lib/format";
+import { getLoans } from "@/lib/loans";
 import { getSession } from "@/lib/session";
 
 export default async function NewTransactionPage({
@@ -19,7 +20,7 @@ export default async function NewTransactionPage({
   if (!session) return null;
 
   const params = await searchParams;
-  const period = parsePeriod(params);
+  const period = await resolvePeriodContext(session.userId, params);
 
   const wallets = await db.wallet.findMany({
     where: { userId: session.userId, isActive: true },
@@ -33,12 +34,16 @@ export default async function NewTransactionPage({
     select: { id: true, name: true, walletId: true },
   });
 
+  const { loans } = await getLoans(session.userId);
+  const activeLoans = loans.filter((loan) => !loan.settled);
+
   return (
     <AppShell
       title="Log Spending"
       showFab={false}
       breadcrumbs={[
-        { label: "Home", href: `/dashboard?year=${period.year}&month=${period.month}` },
+        { label: "Months", href: "/months" },
+        { label: "Log", href: `/log?year=${period.year}&month=${period.month}` },
         { label: "Log Spending" },
       ]}
     >
@@ -47,6 +52,7 @@ export default async function NewTransactionPage({
         month={period.month}
         wallets={wallets}
         categories={categories}
+        activeLoans={activeLoans}
         initialWalletId={params.wallet}
         initialCategoryId={params.category}
         returnTo={params.returnTo}

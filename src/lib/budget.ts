@@ -1,6 +1,22 @@
 import { Prisma } from "@prisma/client";
-import { db } from "@/lib/db";
-import { getCurrentPeriod, toNumber } from "@/lib/format";
+import { db, ensureDbConnection } from "@/lib/db";
+import {
+  DEFAULT_BUDGET_PERIOD,
+  formatMonthLabel,
+  formatPeriodLabel,
+  formatPeriodRange,
+  getCurrentPeriod,
+  isCustomBudgetPeriod,
+  normalizeBudgetPeriodConfig,
+  parsePeriod,
+  type BudgetPeriodConfig,
+} from "@/lib/budget-period";
+import { readDashboardPeriodCookie } from "@/lib/dashboard-period-server";
+import { toNumber } from "@/lib/format";
+import {
+  applyLoanActivity,
+  type LoanActivityAction,
+} from "@/lib/loans";
 import {
   getWalletProvider,
   PAKISTANI_WALLET_CATALOG,
@@ -12,17 +28,133 @@ function previousPeriod(year: number, month: number) {
   return { year: date.getFullYear(), month: date.getMonth() + 1 };
 }
 
-export async function seedUserDefaults(userId: string) {
-  const { year, month } = getCurrentPeriod();
+export async function getUserBudgetSettings(userId: string) {
+  await ensureDbConnection();
 
-  for (const [index, provider] of PAKISTANI_WALLET_CATALOG.entries()) {
-    await createWalletFromProvider(userId, provider, index, {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { budgetPeriodStartDay: true, budgetPeriodEndDay: true },
+  });
+
+  const budgetPeriod = normalizeBudgetPeriodConfig({
+    startDay: user?.budgetPeriodStartDay,
+    endDay: user?.budgetPeriodEndDay,
+  });
+
+  return {
+    budgetPeriodStartDay: budgetPeriod.startDay,
+    budgetPeriodEndDay: budgetPeriod.endDay,
+    budgetPeriod,
+  };
+}
+
+export async function updateBudgetPeriodSettings(
+  userId: string,
+  input: Partial<BudgetPeriodConfig>,
+) {
+  const budgetPeriod = normalizeBudgetPeriodConfig(input);
+
+  return db.user.update({
+    where: { id: userId },
+    data: {
+      budgetPeriodStartDay: budgetPeriod.startDay,
+      budgetPeriodEndDay: budgetPeriod.endDay,
+    },
+  });
+}
+
+/** @deprecated Use updateBudgetPeriodSettings */
+export async function updateBudgetPeriodStartDay(
+  userId: string,
+  startDay: number,
+) {
+  return updateBudgetPeriodSettings(userId, { startDay });
+}
+
+export async function resolvePeriodContext(
+  userId: string,
+  searchParams: { year?: string; month?: string },
+) {
+  const { budgetPeriod } = await getUserBudgetSettings(userId);
+  const storedPeriod = await readDashboardPeriodCookie();
+  const period = parsePeriod(searchParams, budgetPeriod, storedPeriod);
+
+  return {
+    ...period,
+    budgetPeriodStartDay: budgetPeriod.startDay,
+    budgetPeriodEndDay: budgetPeriod.endDay,
+    budgetPeriod,
+    label: formatMonthLabel(period.year, period.month),
+    range: isCustomBudgetPeriod(budgetPeriod)
+      ? formatPeriodRange(period.year, period.month, budgetPeriod)
+      : undefined,
+    periodLabel: formatPeriodLabel(period.year, period.month, budgetPeriod),
+  };
+}
+
+export async function seedUserDefaults(_userId: string) {
+  // Wallets and opening balances are set during onboarding.
+}
+
+export async function completeOnboarding(
+  userId: string,
+  items: Array<{ providerKey: string; openingBalance: number }>,
+) {
+  if (items.length === 0) {
+    throw new Error("Select at least one wallet");
+  }
+
+  const seen = new Set<string>();
+  for (const item of items) {
+    if (seen.has(item.providerKey)) {
+      throw new Error("Duplicate wallet selected");
+    }
+    seen.add(item.providerKey);
+
+    const provider = getWalletProvider(item.providerKey);
+    if (!provider) {
+      throw new Error(`Unknown wallet: ${item.providerKey}`);
+    }
+    if (!Number.isFinite(item.openingBalance) || item.openingBalance < 0) {
+      throw new Error("Opening amount must be zero or greater");
+    }
+  }
+
+  const { budgetPeriod } = await getUserBudgetSettings(userId);
+  const { year, month } = getCurrentPeriod(budgetPeriod);
+
+  const createdWallets: Array<{
+    walletId: string;
+    provider: WalletProvider;
+    openingBalance: number;
+  }> = [];
+
+  for (const [index, item] of items.entries()) {
+    const provider = getWalletProvider(item.providerKey)!;
+    const wallet = await createWalletFromProvider(userId, provider, index, {
       attachToCurrentMonth: false,
+    });
+    createdWallets.push({
+      walletId: wallet.id,
+      provider,
+      openingBalance: item.openingBalance,
     });
   }
 
-  await ensureBudgetMonth(userId, year, month, {
-    seedOpeningBalances: true,
+  const budgetMonth = await ensureBudgetMonth(userId, year, month);
+
+  for (const { walletId, provider, openingBalance } of createdWallets) {
+    await attachWalletToBudgetMonth(
+      budgetMonth.id,
+      walletId,
+      openingBalance,
+      provider,
+    );
+  }
+
+  await db.user.update({
+    where: { id: userId },
+    data: { onboardingCompleted: true },
   });
 }
 
@@ -55,7 +187,8 @@ async function createWalletFromProvider(
   }
 
   if (options?.attachToCurrentMonth !== false) {
-    const { year, month } = getCurrentPeriod();
+    const { budgetPeriod } = await getUserBudgetSettings(userId);
+    const { year, month } = getCurrentPeriod(budgetPeriod);
     const budgetMonth = await ensureBudgetMonth(userId, year, month);
     await attachWalletToBudgetMonth(
       budgetMonth.id,
@@ -279,7 +412,8 @@ export async function reactivateWallet(userId: string, walletId: string) {
     data: { isActive: true },
   });
 
-  const { year, month } = getCurrentPeriod();
+  const { budgetPeriod } = await getUserBudgetSettings(userId);
+  const { year, month } = getCurrentPeriod(budgetPeriod);
   const budgetMonth = await ensureBudgetMonth(userId, year, month);
   const provider = wallet.providerKey
     ? getWalletProvider(wallet.providerKey)
@@ -359,10 +493,6 @@ export async function ensureBudgetMonth(
         walletMonth.walletId,
         rolloverEnabled ? Math.max(remaining, 0) : 0,
       );
-    }
-
-    for (const budget of previousMonth.categoryBudgets) {
-      categoryBudgets.set(budget.categoryId, toNumber(budget.budgetAmount));
     }
   } else if (options?.seedOpeningBalances) {
     for (const wallet of wallets) {
@@ -509,6 +639,109 @@ export async function getDashboardData(
   };
 }
 
+export type MonthOverview = {
+  year: number;
+  month: number;
+  hasBudget: boolean;
+  totalFunds: number;
+  totalAllocated: number;
+  totalSpent: number;
+};
+
+export async function getYearMonthOverview(
+  userId: string,
+  year: number,
+): Promise<MonthOverview[]> {
+  const budgetMonths = await db.budgetMonth.findMany({
+    where: { userId, year },
+    include: { walletMonths: true, categoryBudgets: true },
+  });
+
+  const budgetMonthIds = budgetMonths.map((item) => item.id);
+
+  const [walletSpentRows, categorySpentRows] = await Promise.all([
+    budgetMonthIds.length
+      ? db.transaction.groupBy({
+          by: ["budgetMonthId", "walletId"],
+          where: { budgetMonthId: { in: budgetMonthIds } },
+          _sum: { amount: true },
+        })
+      : Promise.resolve([]),
+    budgetMonthIds.length
+      ? db.transaction.groupBy({
+          by: ["budgetMonthId", "categoryId"],
+          where: {
+            budgetMonthId: { in: budgetMonthIds },
+            categoryId: { not: null },
+          },
+          _sum: { amount: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const walletSpentMap = new Map<string, number>();
+  for (const row of walletSpentRows) {
+    walletSpentMap.set(
+      `${row.budgetMonthId}:${row.walletId}`,
+      toNumber(row._sum.amount ?? 0),
+    );
+  }
+
+  const categorySpentMap = new Map<string, number>();
+  for (const row of categorySpentRows) {
+    if (!row.categoryId) continue;
+    categorySpentMap.set(
+      `${row.budgetMonthId}:${row.categoryId}`,
+      toNumber(row._sum.amount ?? 0),
+    );
+  }
+
+  const monthData = new Map<number, MonthOverview>();
+
+  for (const budgetMonth of budgetMonths) {
+    let totalFunds = 0;
+    for (const walletMonth of budgetMonth.walletMonths) {
+      const spent =
+        walletSpentMap.get(`${budgetMonth.id}:${walletMonth.walletId}`) ?? 0;
+      totalFunds +=
+        toNumber(walletMonth.openingBalance) +
+        toNumber(walletMonth.addedAmount) -
+        spent;
+    }
+
+    let totalAllocated = 0;
+    let totalSpent = 0;
+    for (const budget of budgetMonth.categoryBudgets) {
+      totalAllocated += toNumber(budget.budgetAmount);
+      totalSpent +=
+        categorySpentMap.get(`${budgetMonth.id}:${budget.categoryId}`) ?? 0;
+    }
+
+    monthData.set(budgetMonth.month, {
+      year,
+      month: budgetMonth.month,
+      hasBudget: true,
+      totalFunds,
+      totalAllocated,
+      totalSpent,
+    });
+  }
+
+  return Array.from({ length: 12 }, (_, index) => {
+    const month = index + 1;
+    return (
+      monthData.get(month) ?? {
+        year,
+        month,
+        hasBudget: false,
+        totalFunds: 0,
+        totalAllocated: 0,
+        totalSpent: 0,
+      }
+    );
+  });
+}
+
 export async function getWalletPageData(
   userId: string,
   year: number,
@@ -576,6 +809,12 @@ export async function createTransaction(input: {
   amount: number;
   description?: string;
   date?: Date;
+  loan?: {
+    action: LoanActivityAction;
+    loanId?: string;
+    personName?: string;
+    direction?: "given" | "taken";
+  };
 }) {
   if (input.amount <= 0) {
     throw new Error("Amount must be greater than zero");
@@ -586,6 +825,8 @@ export async function createTransaction(input: {
   if (!input.categoryId && !description) {
     throw new Error("Add a note describing what you spent on");
   }
+
+  const transactionDate = input.date ?? new Date();
 
   const budgetMonth = await ensureBudgetMonth(
     input.userId,
@@ -615,7 +856,7 @@ export async function createTransaction(input: {
     }
   }
 
-  return db.transaction.create({
+  const transaction = await db.transaction.create({
     data: {
       userId: input.userId,
       budgetMonthId: budgetMonth.id,
@@ -623,9 +864,69 @@ export async function createTransaction(input: {
       categoryId: input.categoryId ?? null,
       amount: input.amount,
       description,
-      date: input.date ?? new Date(),
+      date: transactionDate,
     },
   });
+
+  if (input.loan) {
+    try {
+      await applyLoanActivity(input.userId, {
+        action: input.loan.action,
+        amount: input.amount,
+        loanId: input.loan.loanId,
+        personName: input.loan.personName,
+        direction: input.loan.direction,
+        date: transactionDate,
+        note: description ?? undefined,
+      });
+    } catch (error) {
+      await db.transaction.delete({ where: { id: transaction.id } });
+      throw error;
+    }
+  }
+
+  return transaction;
+}
+
+export async function createTransactions(
+  userId: string,
+  year: number,
+  month: number,
+  date: Date,
+  entries: Array<{
+    walletId: string;
+    categoryId?: string;
+    amount: number;
+    description?: string;
+  }>,
+) {
+  if (entries.length === 0) {
+    throw new Error("Add at least one expense");
+  }
+
+  const created = [];
+  for (const [index, entry] of entries.entries()) {
+    try {
+      created.push(
+        await createTransaction({
+          userId,
+          year,
+          month,
+          walletId: entry.walletId,
+          categoryId: entry.categoryId,
+          amount: entry.amount,
+          description: entry.description,
+          date,
+        }),
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to create transaction";
+      throw new Error(`Entry ${index + 1}: ${message}`);
+    }
+  }
+
+  return created;
 }
 
 export async function updateTransaction(
@@ -705,6 +1006,69 @@ export async function deleteTransaction(userId: string, transactionId: string) {
   return transaction;
 }
 
+export async function moveTransactionToMonth(
+  userId: string,
+  transactionId: string,
+  toYear: number,
+  toMonth: number,
+) {
+  const transaction = await db.transaction.findFirst({
+    where: { id: transactionId, userId },
+    include: { budgetMonth: true },
+  });
+
+  if (!transaction) {
+    throw new Error("Transaction not found");
+  }
+
+  if (
+    transaction.budgetMonth.year === toYear &&
+    transaction.budgetMonth.month === toMonth
+  ) {
+    throw new Error("Transaction is already in that month");
+  }
+
+  const targetBudgetMonth = await ensureBudgetMonth(userId, toYear, toMonth);
+
+  await db.walletMonth.upsert({
+    where: {
+      budgetMonthId_walletId: {
+        budgetMonthId: targetBudgetMonth.id,
+        walletId: transaction.walletId,
+      },
+    },
+    update: {},
+    create: {
+      budgetMonthId: targetBudgetMonth.id,
+      walletId: transaction.walletId,
+      openingBalance: 0,
+      addedAmount: 0,
+    },
+  });
+
+  if (transaction.categoryId) {
+    await db.categoryBudget.upsert({
+      where: {
+        budgetMonthId_categoryId: {
+          budgetMonthId: targetBudgetMonth.id,
+          categoryId: transaction.categoryId,
+        },
+      },
+      update: {},
+      create: {
+        budgetMonthId: targetBudgetMonth.id,
+        categoryId: transaction.categoryId,
+        budgetAmount: 0,
+      },
+    });
+  }
+
+  return db.transaction.update({
+    where: { id: transactionId },
+    data: { budgetMonthId: targetBudgetMonth.id },
+  });
+}
+
 export async function updateWalletMonthFunding(input: {
   userId: string;
   year: number;
@@ -742,6 +1106,59 @@ export async function updateWalletMonthFunding(input: {
         ? { addedAmount: input.addedAmount }
         : {}),
     },
+  });
+}
+
+export async function addWalletFunds(input: {
+  userId: string;
+  year: number;
+  month: number;
+  walletId: string;
+  amount: number;
+  note?: string;
+}) {
+  if (input.amount <= 0) {
+    throw new Error("Amount must be greater than zero");
+  }
+
+  const budgetMonth = await ensureBudgetMonth(
+    input.userId,
+    input.year,
+    input.month,
+  );
+
+  const wallet = await db.wallet.findFirst({
+    where: { id: input.walletId, userId: input.userId, isActive: true },
+  });
+
+  if (!wallet) {
+    throw new Error("Wallet not found or inactive");
+  }
+
+  const existing = await db.walletMonth.findUnique({
+    where: {
+      budgetMonthId_walletId: {
+        budgetMonthId: budgetMonth.id,
+        walletId: input.walletId,
+      },
+    },
+  });
+
+  if (!existing) {
+    return db.walletMonth.create({
+      data: {
+        budgetMonthId: budgetMonth.id,
+        walletId: input.walletId,
+        openingBalance: 0,
+        addedAmount: input.amount,
+      },
+    });
+  }
+
+  const currentAdded = toNumber(existing.addedAmount);
+  return db.walletMonth.update({
+    where: { id: existing.id },
+    data: { addedAmount: currentAdded + input.amount },
   });
 }
 
@@ -808,6 +1225,121 @@ export async function setRolloverEnabled(
     where: { id: budgetMonth.id },
     data: { rolloverEnabled: enabled },
   });
+}
+
+export async function moveBudgetMonth(
+  userId: string,
+  fromYear: number,
+  fromMonth: number,
+  toYear: number,
+  toMonth: number,
+  options?: { replaceExisting?: boolean },
+) {
+  if (fromYear === toYear && fromMonth === toMonth) {
+    throw new Error("Choose a different month");
+  }
+
+  const source = await db.budgetMonth.findUnique({
+    where: {
+      userId_year_month: { userId, year: fromYear, month: fromMonth },
+    },
+  });
+
+  if (!source) {
+    throw new Error("No budget found for the selected month");
+  }
+
+  const target = await db.budgetMonth.findUnique({
+    where: {
+      userId_year_month: { userId, year: toYear, month: toMonth },
+    },
+    include: {
+      _count: { select: { transactions: true } },
+    },
+  });
+
+  if (target) {
+    if (!options?.replaceExisting) {
+      throw new Error(
+        "That month already has a budget. Confirm replace to overwrite it.",
+      );
+    }
+
+    if (target._count.transactions > 0) {
+      throw new Error(
+        "That month already has transactions. Move or delete them first.",
+      );
+    }
+
+    await db.budgetMonth.delete({ where: { id: target.id } });
+  }
+
+  return db.budgetMonth.update({
+    where: { id: source.id },
+    data: { year: toYear, month: toMonth },
+  });
+}
+
+export async function resetBudgetMonthToZero(
+  userId: string,
+  year: number,
+  month: number,
+) {
+  const budgetMonth = await ensureBudgetMonth(userId, year, month);
+
+  const wallets = await db.wallet.findMany({
+    where: { userId, isActive: true },
+    include: { categories: { orderBy: { sortOrder: "asc" } } },
+  });
+
+  // Batch updates only — interactive $transaction callbacks fail on Neon pooler.
+  await db.$transaction([
+    db.walletMonth.updateMany({
+      where: { budgetMonthId: budgetMonth.id },
+      data: { openingBalance: 0, addedAmount: 0 },
+    }),
+    db.categoryBudget.updateMany({
+      where: { budgetMonthId: budgetMonth.id },
+      data: { budgetAmount: 0 },
+    }),
+  ]);
+
+  for (const wallet of wallets) {
+    await db.walletMonth.upsert({
+      where: {
+        budgetMonthId_walletId: {
+          budgetMonthId: budgetMonth.id,
+          walletId: wallet.id,
+        },
+      },
+      update: { openingBalance: 0, addedAmount: 0 },
+      create: {
+        budgetMonthId: budgetMonth.id,
+        walletId: wallet.id,
+        openingBalance: 0,
+        addedAmount: 0,
+      },
+    });
+
+    for (const category of wallet.categories) {
+      await db.categoryBudget.upsert({
+        where: {
+          budgetMonthId_categoryId: {
+            budgetMonthId: budgetMonth.id,
+            categoryId: category.id,
+          },
+        },
+        update: { budgetAmount: 0 },
+        create: {
+          budgetMonthId: budgetMonth.id,
+          categoryId: category.id,
+          budgetAmount: 0,
+        },
+      });
+    }
+  }
+
+  return budgetMonth;
 }
 
 export async function createCategory(input: {

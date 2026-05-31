@@ -13,7 +13,11 @@ export async function POST(request: Request) {
   try {
     const body = schema.parse(await request.json());
     const user = await registerUser(body);
-    await createSession({ userId: user.id, email: user.email });
+    await createSession({
+      userId: user.id,
+      email: user.email,
+      onboardingCompleted: false,
+    });
     return NextResponse.json({ ok: true });
   } catch (error) {
     const message =

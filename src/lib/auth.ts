@@ -19,6 +19,7 @@ export async function registerUser(input: {
       email,
       passwordHash,
       name: input.name?.trim() || null,
+      onboardingCompleted: false,
     },
   });
 
@@ -34,5 +35,23 @@ export async function verifyUser(email: string, password: string) {
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) return null;
 
-  return user;
+  return {
+    id: user.id,
+    email: user.email,
+    onboardingCompleted: user.onboardingCompleted,
+  };
+}
+
+export async function deleteUserAccount(userId: string, password: string) {
+  const user = await db.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    throw new Error("Account not found");
+  }
+
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) {
+    throw new Error("Incorrect password");
+  }
+
+  await db.user.delete({ where: { id: userId } });
 }

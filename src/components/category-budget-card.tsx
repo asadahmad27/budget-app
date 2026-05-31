@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { resolveActivePeriod } from "@/lib/dashboard-period";
 import { formatMoney } from "@/lib/format";
 
 type CategoryItem = {
@@ -87,12 +88,13 @@ export function CategoryBudgetCard({
     setError(null);
 
     if (amountToLogOnDone > 0) {
+      const activePeriod = resolveActivePeriod({ year, month });
       const transactionResponse = await fetch("/api/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          year,
-          month,
+          year: activePeriod.year,
+          month: activePeriod.month,
           walletId,
           categoryId: category.id,
           amount: amountToLogOnDone,

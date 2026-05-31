@@ -6,41 +6,55 @@ export function formatMoney(amount: number | string, currency = "PKR") {
   })} ${currency}`;
 }
 
-export function formatMonthLabel(year: number, month: number) {
-  return new Date(year, month - 1, 1).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
+export {
+  formatMonthLabel,
+  formatPeriodLabel,
+  formatPeriodRange,
+  getCurrentPeriod,
+  parsePeriod,
+  shiftPeriod,
+} from "@/lib/budget-period";
+
+export function formatMonthShort(month: number) {
+  return new Date(2000, month - 1, 1).toLocaleDateString("en-US", {
+    month: "short",
   });
 }
 
-export function getCurrentPeriod() {
-  const now = new Date();
-  return { year: now.getFullYear(), month: now.getMonth() + 1 };
+export function formatAmountCompact(amount: number) {
+  return amount.toLocaleString("en-PK", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
 }
 
-export function parsePeriod(searchParams: {
-  year?: string;
-  month?: string;
-}) {
-  const current = getCurrentPeriod();
-  const year = Number(searchParams.year ?? current.year);
-  const month = Number(searchParams.month ?? current.month);
+export function formatDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
-  if (
-    !Number.isInteger(year) ||
-    !Number.isInteger(month) ||
-    month < 1 ||
-    month > 12
-  ) {
-    return current;
+export function parseTransactionDate(value: string): Date {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) {
+    throw new Error("Invalid date");
   }
 
-  return { year, month };
-}
+  const parsedYear = Number(match[1]);
+  const parsedMonth = Number(match[2]);
+  const parsedDay = Number(match[3]);
+  const date = new Date(parsedYear, parsedMonth - 1, parsedDay, 12, 0, 0, 0);
 
-export function shiftPeriod(year: number, month: number, delta: number) {
-  const date = new Date(year, month - 1 + delta, 1);
-  return { year: date.getFullYear(), month: date.getMonth() + 1 };
+  if (
+    date.getFullYear() !== parsedYear ||
+    date.getMonth() + 1 !== parsedMonth ||
+    date.getDate() !== parsedDay
+  ) {
+    throw new Error("Invalid date");
+  }
+
+  return date;
 }
 
 export function toNumber(value: unknown) {

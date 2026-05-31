@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatMoney, formatMonthLabel } from "@/lib/format";
+import { formatMoney, formatPeriodLabel } from "@/lib/format";
 
 type View = "allocated" | "unspent" | "lastMonth";
 
@@ -15,6 +15,7 @@ export function CategoryTotalsSummary({
   lastMonthSpent,
   lastMonthYear,
   lastMonthMonth,
+  lastMonthLabel,
 }: {
   totalBudget: number;
   totalUnspent: number;
@@ -25,16 +26,22 @@ export function CategoryTotalsSummary({
   lastMonthSpent: number;
   lastMonthYear: number;
   lastMonthMonth: number;
+  lastMonthLabel?: string;
 }) {
   const [view, setView] = useState<View>("allocated");
-  const lastMonthLabel = formatMonthLabel(lastMonthYear, lastMonthMonth);
+  const resolvedLastMonthLabel =
+    lastMonthLabel ??
+    formatPeriodLabel(lastMonthYear, lastMonthMonth, {
+      startDay: 1,
+      endDay: 31,
+    });
 
   const label =
     view === "allocated"
       ? "Total allocated"
       : view === "unspent"
         ? "Total unspent"
-        : `Unspent from ${lastMonthLabel}`;
+        : `Unspent from ${resolvedLastMonthLabel}`;
 
   const amount =
     view === "allocated"

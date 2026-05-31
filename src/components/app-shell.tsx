@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { BottomNav } from "@/components/bottom-nav";
 import { Breadcrumbs, type BreadcrumbItem } from "@/components/breadcrumbs";
+import { PeriodFab } from "@/components/period-fab";
 
 export function AppShell({
   children,
@@ -36,14 +36,7 @@ export function AppShell({
         {breadcrumbs ? <Breadcrumbs items={breadcrumbs} /> : null}
         {children}
       </main>
-      {showFab ? (
-        <Link
-          href="/transactions/new"
-          className="fixed bottom-24 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-lg transition-all hover:scale-105 active:scale-90"
-        >
-          <span className="material-symbols-outlined">add</span>
-        </Link>
-      ) : null}
+      {showFab ? <PeriodFab /> : null}
       <BottomNav />
     </div>
   );

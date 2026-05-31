@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { ActivePeriodSync } from "@/components/active-period-sync";
 import { AddCategoryForm } from "@/components/add-category-form";
 import { AppShell } from "@/components/app-shell";
 import { CategoryBudgetCard } from "@/components/category-budget-card";
@@ -6,8 +8,8 @@ import { CategoryTotalsSummary } from "@/components/category-totals-summary";
 import { DeactivateWalletButton } from "@/components/deactivate-wallet-button";
 import { MonthSwitcher } from "@/components/month-switcher";
 import { WalletFundingForm } from "@/components/wallet-funding-form";
-import { getWalletPageData } from "@/lib/budget";
-import { formatMoney, formatMonthLabel, parsePeriod } from "@/lib/format";
+import { getWalletPageData, resolvePeriodContext } from "@/lib/budget";
+import { formatMoney, formatPeriodLabel } from "@/lib/format";
 import { getSession } from "@/lib/session";
 
 export default async function WalletsPage({
@@ -19,14 +21,13 @@ export default async function WalletsPage({
   if (!session) return null;
 
   const params = await searchParams;
-  const period = parsePeriod(params);
+  const period = await resolvePeriodContext(session.userId, params);
   const data = await getWalletPageData(
     session.userId,
     period.year,
     period.month,
     params.wallet,
   );
-  const monthLabel = formatMonthLabel(period.year, period.month);
   const totalCategoryBudget = data.walletCategories.reduce(
     (sum, category) => sum + category.budgetAmount,
     0,
@@ -46,18 +47,24 @@ export default async function WalletsPage({
         <MonthSwitcher
           year={period.year}
           month={period.month}
-          label={monthLabel}
+          label={period.label}
+          // range={period.range}
+          // budgetPeriodStartDay={period.budgetPeriodStartDay}
+          // budgetPeriodEndDay={period.budgetPeriodEndDay}
           basePath="/wallets"
         />
       }
       breadcrumbs={[
-        { label: "Home", href: `/dashboard?year=${period.year}&month=${period.month}` },
+        { label: "Months", href: "/months" },
         { label: "Wallets" },
         ...(data.selectedWallet
           ? [{ label: data.selectedWallet.name }]
           : []),
       ]}
     >
+      <Suspense fallback={null}>
+        <ActivePeriodSync />
+      </Suspense>
       <div className="space-y-8 pb-8">
         <section className="flex items-center justify-between gap-3">
           <p className="text-sm text-on-surface-variant">
@@ -124,6 +131,7 @@ export default async function WalletsPage({
 
             <WalletFundingForm
               walletId={data.selectedWallet.id}
+              walletName={data.selectedWallet.name}
               year={period.year}
               month={period.month}
               openingBalance={data.selectedWallet.opening}
@@ -170,6 +178,11 @@ export default async function WalletsPage({
                   lastMonthSpent={data.lastMonthCategoryTotals.totalSpent}
                   lastMonthYear={data.lastMonthCategoryTotals.year}
                   lastMonthMonth={data.lastMonthCategoryTotals.month}
+                  lastMonthLabel={formatPeriodLabel(
+                    data.lastMonthCategoryTotals.year,
+                    data.lastMonthCategoryTotals.month,
+                    period.budgetPeriod,
+                  )}
                 />
               ) : null}
             </section>

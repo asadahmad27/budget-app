@@ -20,7 +20,11 @@ export async function POST(request: Request) {
       );
     }
 
-    await createSession({ userId: user.id, email: user.email });
+    await createSession({
+      userId: user.id,
+      email: user.email,
+      onboardingCompleted: user.onboardingCompleted,
+    });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });

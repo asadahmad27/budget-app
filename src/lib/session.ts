@@ -14,6 +14,7 @@ function getSecret() {
 export type SessionPayload = {
   userId: string;
   email: string;
+  onboardingCompleted?: boolean;
 };
 
 export async function createSession(payload: SessionPayload) {
@@ -51,7 +52,14 @@ export async function getSession(): Promise<SessionPayload | null> {
     ) {
       return null;
     }
-    return { userId: payload.userId, email: payload.email };
+    return {
+      userId: payload.userId,
+      email: payload.email,
+      onboardingCompleted:
+        typeof payload.onboardingCompleted === "boolean"
+          ? payload.onboardingCompleted
+          : undefined,
+    };
   } catch {
     return null;
   }

@@ -35,7 +35,7 @@ export default function LoginForm() {
       return;
     }
 
-    router.push(searchParams.get("next") ?? "/dashboard");
+    router.push(searchParams.get("next") ?? "/months");
     router.refresh();
   }
 

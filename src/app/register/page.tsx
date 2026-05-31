@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,7 +35,7 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/onboarding");
     router.refresh();
   }
 
@@ -81,14 +82,26 @@ export default function RegisterPage() {
             <label className="mb-2 block text-sm font-medium" htmlFor="password">
               Password
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              className="w-full rounded-lg border border-outline-variant bg-white px-4 py-3 outline-none focus:border-primary"
-            />
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={8}
+                className="w-full rounded-lg border border-outline-variant bg-white px-4 py-3 pr-12 outline-none focus:border-primary"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((value) => !value)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-on-surface-variant hover:bg-surface-container-low hover:text-primary"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                <span className="material-symbols-outlined text-xl">
+                  {showPassword ? "visibility_off" : "visibility"}
+                </span>
+              </button>
+            </div>
           </div>
 
           {error ? <p className="text-sm text-error">{error}</p> : null}
