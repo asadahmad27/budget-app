@@ -32,11 +32,12 @@ export async function POST(request: Request) {
 
   try {
     const body = schema.parse(await request.json());
-    const settings = await updateBudgetPeriodSettings(session.userId, {
+    await updateBudgetPeriodSettings(session.userId, {
       startDay: body.budgetPeriodStartDay,
       endDay: body.budgetPeriodEndDay,
     });
 
+    const settings = await getUserBudgetSettings(session.userId);
     return NextResponse.json({
       budgetPeriodStartDay: settings.budgetPeriodStartDay,
       budgetPeriodEndDay: settings.budgetPeriodEndDay,

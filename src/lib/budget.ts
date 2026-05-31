@@ -60,6 +60,7 @@ export async function updateBudgetPeriodSettings(
       budgetPeriodStartDay: budgetPeriod.startDay,
       budgetPeriodEndDay: budgetPeriod.endDay,
     },
+    select: { budgetPeriodStartDay: true, budgetPeriodEndDay: true },
   });
 }
 
