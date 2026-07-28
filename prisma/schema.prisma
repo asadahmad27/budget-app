@@ -101,6 +101,7 @@ model CategoryBudget {
   budgetMonthId String
   categoryId    String
   budgetAmount  Decimal @db.Decimal(12, 2)
+  excluded      Boolean @default(false)
 
   budgetMonth BudgetMonth @relation(fields: [budgetMonthId], references: [id], onDelete: Cascade)
   category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)

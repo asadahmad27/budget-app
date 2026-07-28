@@ -22,7 +22,10 @@ export default async function DashboardPage({
   const data = await getDashboardData(session.userId, period.year, period.month);
 
   const topCategories = [...data.categories]
-    .filter((category) => category.budgetAmount > 0)
+    .filter(
+      (category) =>
+        category.budgetAmount > 0 && category.remaining > 0,
+    )
     .sort((a, b) => b.budgetAmount - a.budgetAmount)
     .slice(0, 6);
 
@@ -98,7 +101,7 @@ export default async function DashboardPage({
                         account_balance_wallet
                       </span>
                     </div>
-                    <span className="text-xs text-on-surface-variant">
+                    <span className="text-sm font-semibold text-on-surface">
                       {wallet.name}
                     </span>
                   </div>

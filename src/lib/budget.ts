@@ -18,6 +18,11 @@ import {
   type LoanActivityAction,
 } from "@/lib/loans";
 import {
+  buildCategoryImportPreview,
+  normalizeCategoryName,
+  parseCategoryPaste,
+} from "@/lib/category-import";
+import {
   getWalletProvider,
   PAKISTANI_WALLET_CATALOG,
   type WalletProvider,
@@ -594,28 +599,35 @@ export async function getDashboardData(
     }),
   );
 
-  const categorySummaries = await Promise.all(
-    categories.map(async (category) => {
-      const budget = categoryBudgets.find(
-        (item) => item.categoryId === category.id,
-      );
-      const budgetAmount = toNumber(budget?.budgetAmount ?? 0);
-      const spent = await getCategorySpent(budgetMonth.id, category.id);
-      const remaining = budgetAmount - spent;
+  const categorySummaries = (
+    await Promise.all(
+      categories.map(async (category) => {
+        const budget = categoryBudgets.find(
+          (item) => item.categoryId === category.id,
+        );
 
-      return {
-        id: category.id,
-        name: category.name,
-        walletId: category.walletId,
-        walletName: category.wallet.name,
-        walletColor: category.wallet.color,
-        budgetAmount,
-        spent,
-        remaining,
-        progress: budgetAmount > 0 ? Math.min(spent / budgetAmount, 1) : 0,
-      };
-    }),
-  );
+        if (budget?.excluded) {
+          return null;
+        }
+
+        const budgetAmount = toNumber(budget?.budgetAmount ?? 0);
+        const spent = await getCategorySpent(budgetMonth.id, category.id);
+        const remaining = budgetAmount - spent;
+
+        return {
+          id: category.id,
+          name: category.name,
+          walletId: category.walletId,
+          walletName: category.wallet.name,
+          walletColor: category.wallet.color,
+          budgetAmount,
+          spent,
+          remaining,
+          progress: budgetAmount > 0 ? Math.min(spent / budgetAmount, 1) : 0,
+        };
+      }),
+    )
+  ).filter((category) => category !== null);
 
   const totalFunds = walletSummaries.reduce(
     (sum, wallet) => sum + wallet.balance,
@@ -772,6 +784,7 @@ export async function getWalletPageData(
       const previousCategoryBudgets = await db.categoryBudget.findMany({
         where: {
           budgetMonthId: previousMonth.id,
+          excluded: false,
           category: { walletId: selectedWalletId },
         },
       });
@@ -1170,6 +1183,7 @@ export async function updateCategoryBudget(input: {
   categoryId: string;
   budgetAmount?: number;
   complete?: boolean;
+  excluded?: boolean;
 }) {
   const budgetMonth = await ensureBudgetMonth(
     input.userId,
@@ -1185,18 +1199,53 @@ export async function updateCategoryBudget(input: {
     throw new Error("Category not found");
   }
 
+  if (input.excluded === true) {
+    const spent = await getCategorySpent(budgetMonth.id, input.categoryId);
+    if (spent > 0) {
+      throw new Error(
+        "This category has spending this month. Move or delete transactions first.",
+      );
+    }
+  }
+
   let budgetAmount = input.budgetAmount;
 
   if (input.complete) {
     budgetAmount = await getCategorySpent(budgetMonth.id, input.categoryId);
   }
 
-  if (budgetAmount === undefined) {
+  if (budgetAmount === undefined && input.excluded === undefined) {
     throw new Error("Budget amount is required");
   }
 
-  if (budgetAmount < 0) {
+  if (budgetAmount !== undefined && budgetAmount < 0) {
     throw new Error("Budget amount cannot be negative");
+  }
+
+  const existing = await db.categoryBudget.findUnique({
+    where: {
+      budgetMonthId_categoryId: {
+        budgetMonthId: budgetMonth.id,
+        categoryId: input.categoryId,
+      },
+    },
+  });
+
+  const data: {
+    budgetAmount?: number;
+    excluded?: boolean;
+  } = {};
+
+  if (budgetAmount !== undefined) {
+    data.budgetAmount = budgetAmount;
+  } else if (existing) {
+    data.budgetAmount = toNumber(existing.budgetAmount);
+  } else {
+    data.budgetAmount = 0;
+  }
+
+  if (input.excluded !== undefined) {
+    data.excluded = input.excluded;
   }
 
   return db.categoryBudget.upsert({
@@ -1206,11 +1255,12 @@ export async function updateCategoryBudget(input: {
         categoryId: input.categoryId,
       },
     },
-    update: { budgetAmount },
+    update: data,
     create: {
       budgetMonthId: budgetMonth.id,
       categoryId: input.categoryId,
-      budgetAmount,
+      budgetAmount: data.budgetAmount ?? 0,
+      excluded: input.excluded ?? false,
     },
   });
 }
@@ -1405,4 +1455,344 @@ export async function createCategory(input: {
   });
 
   return category;
+}
+
+export async function getWalletCategoryImportContext(
+  userId: string,
+  walletId: string,
+  year: number,
+  month: number,
+) {
+  const budgetMonth = await ensureBudgetMonth(userId, year, month);
+
+  const categories = await db.category.findMany({
+    where: { userId, walletId },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  const categoryBudgets = await db.categoryBudget.findMany({
+    where: { budgetMonthId: budgetMonth.id },
+  });
+
+  return categories.map((category) => {
+    const budget = categoryBudgets.find((item) => item.categoryId === category.id);
+
+    return {
+      id: category.id,
+      name: category.name,
+      budgetAmount: toNumber(budget?.budgetAmount ?? 0),
+      excluded: budget?.excluded ?? false,
+    };
+  });
+}
+
+export async function previewCategoryImport(input: {
+  userId: string;
+  walletId: string;
+  year: number;
+  month: number;
+  text: string;
+}) {
+  const parsedRows = parseCategoryPaste(input.text);
+  const existingCategories = await getWalletCategoryImportContext(
+    input.userId,
+    input.walletId,
+    input.year,
+    input.month,
+  );
+
+  const rows = buildCategoryImportPreview(parsedRows, existingCategories);
+  const importedNames = new Set(
+    parsedRows.map((row) => normalizeCategoryName(row.name)),
+  );
+
+  const notInPaste = existingCategories
+    .filter(
+      (category) =>
+        !category.excluded &&
+        !importedNames.has(normalizeCategoryName(category.name)),
+    )
+    .map((category) => ({
+      id: category.id,
+      name: category.name,
+      budgetAmount: category.budgetAmount,
+    }));
+
+  return {
+    rows,
+    notInPaste,
+    summary: {
+      createCount: rows.filter((row) => row.action === "create").length,
+      updateCount: rows.filter((row) => row.action === "update").length,
+      unchangedCount: rows.filter((row) => row.action === "unchanged").length,
+    },
+  };
+}
+
+export async function applyCategoryImport(input: {
+  userId: string;
+  walletId: string;
+  year: number;
+  month: number;
+  rows: Array<{ name: string; budgetAmount: number }>;
+  hideMissing?: boolean;
+}) {
+  if (input.rows.length === 0) {
+    throw new Error("Nothing to import");
+  }
+
+  const existingCategories = await getWalletCategoryImportContext(
+    input.userId,
+    input.walletId,
+    input.year,
+    input.month,
+  );
+
+  const existingByName = new Map(
+    existingCategories.map((category) => [
+      normalizeCategoryName(category.name),
+      category,
+    ]),
+  );
+
+  const importedNames = new Set<string>();
+
+  for (const row of input.rows) {
+    const normalizedName = normalizeCategoryName(row.name);
+    importedNames.add(normalizedName);
+
+    const existing = existingByName.get(normalizedName);
+
+    if (existing) {
+      await updateCategoryBudget({
+        userId: input.userId,
+        year: input.year,
+        month: input.month,
+        categoryId: existing.id,
+        budgetAmount: row.budgetAmount,
+        excluded: false,
+      });
+      continue;
+    }
+
+    await createCategory({
+      userId: input.userId,
+      walletId: input.walletId,
+      name: row.name,
+      year: input.year,
+      month: input.month,
+      budgetAmount: row.budgetAmount,
+    });
+  }
+
+  if (input.hideMissing) {
+    const budgetMonth = await ensureBudgetMonth(
+      input.userId,
+      input.year,
+      input.month,
+    );
+
+    for (const category of existingCategories) {
+      if (importedNames.has(normalizeCategoryName(category.name))) {
+        continue;
+      }
+
+      if (category.excluded) {
+        continue;
+      }
+
+      const spent = await getCategorySpent(budgetMonth.id, category.id);
+      if (spent > 0) {
+        continue;
+      }
+
+      await updateCategoryBudget({
+        userId: input.userId,
+        year: input.year,
+        month: input.month,
+        categoryId: category.id,
+        excluded: true,
+      });
+    }
+  }
+}
+
+async function getLastMonthCategoryBudgetsForWallet(
+  userId: string,
+  walletId: string,
+  year: number,
+  month: number,
+) {
+  const prev = previousPeriod(year, month);
+  const previousMonth = await db.budgetMonth.findUnique({
+    where: {
+      userId_year_month: { userId, year: prev.year, month: prev.month },
+    },
+  });
+
+  if (!previousMonth) {
+    return { source: null, rows: [] as Array<{ categoryId: string; name: string; budgetAmount: number }> };
+  }
+
+  const budgets = await db.categoryBudget.findMany({
+    where: {
+      budgetMonthId: previousMonth.id,
+      excluded: false,
+      category: { walletId, userId },
+    },
+    include: { category: true },
+    orderBy: { category: { sortOrder: "asc" } },
+  });
+
+  return {
+    source: { year: prev.year, month: prev.month },
+    rows: budgets.map((budget) => ({
+      categoryId: budget.categoryId,
+      name: budget.category.name,
+      budgetAmount: toNumber(budget.budgetAmount),
+    })),
+  };
+}
+
+export async function previewCopyLastMonthBudget(input: {
+  userId: string;
+  walletId: string;
+  year: number;
+  month: number;
+}) {
+  const { source, rows } = await getLastMonthCategoryBudgetsForWallet(
+    input.userId,
+    input.walletId,
+    input.year,
+    input.month,
+  );
+
+  if (!source) {
+    throw new Error("No budget found for last month");
+  }
+
+  if (rows.length === 0) {
+    throw new Error("Last month has no category budgets to copy for this wallet");
+  }
+
+  const currentCategories = await getWalletCategoryImportContext(
+    input.userId,
+    input.walletId,
+    input.year,
+    input.month,
+  );
+
+  const currentById = new Map(
+    currentCategories.map((category) => [category.id, category]),
+  );
+  const lastMonthIds = new Set(rows.map((row) => row.categoryId));
+
+  const previewRows = rows
+    .map((row, index) => {
+      const current = currentById.get(row.categoryId);
+      if (!current) return null;
+
+      const action =
+        current.excluded || current.budgetAmount !== row.budgetAmount
+          ? ("update" as const)
+          : ("unchanged" as const);
+
+      return {
+        lineNumber: index + 1,
+        categoryId: row.categoryId,
+        name: row.name,
+        budgetAmount: row.budgetAmount,
+        action,
+        currentBudget: current.budgetAmount,
+        excluded: current.excluded,
+      };
+    })
+    .filter((row) => row !== null);
+
+  const notInLastMonth = currentCategories
+    .filter(
+      (category) => !category.excluded && !lastMonthIds.has(category.id),
+    )
+    .map((category) => ({
+      id: category.id,
+      name: category.name,
+      budgetAmount: category.budgetAmount,
+    }));
+
+  return {
+    sourceLabel: formatMonthLabel(source.year, source.month),
+    source,
+    rows: previewRows,
+    notInLastMonth,
+    summary: {
+      updateCount: previewRows.filter((row) => row.action === "update").length,
+      unchangedCount: previewRows.filter((row) => row.action === "unchanged")
+        .length,
+    },
+  };
+}
+
+export async function applyCopyLastMonthBudget(input: {
+  userId: string;
+  walletId: string;
+  year: number;
+  month: number;
+  hideMissing?: boolean;
+}) {
+  const { rows } = await getLastMonthCategoryBudgetsForWallet(
+    input.userId,
+    input.walletId,
+    input.year,
+    input.month,
+  );
+
+  if (rows.length === 0) {
+    throw new Error("Last month has no category budgets to copy for this wallet");
+  }
+
+  const lastMonthIds = new Set(rows.map((row) => row.categoryId));
+
+  for (const row of rows) {
+    await updateCategoryBudget({
+      userId: input.userId,
+      year: input.year,
+      month: input.month,
+      categoryId: row.categoryId,
+      budgetAmount: row.budgetAmount,
+      excluded: false,
+    });
+  }
+
+  if (input.hideMissing) {
+    const budgetMonth = await ensureBudgetMonth(
+      input.userId,
+      input.year,
+      input.month,
+    );
+    const currentCategories = await getWalletCategoryImportContext(
+      input.userId,
+      input.walletId,
+      input.year,
+      input.month,
+    );
+
+    for (const category of currentCategories) {
+      if (lastMonthIds.has(category.id) || category.excluded) {
+        continue;
+      }
+
+      const spent = await getCategorySpent(budgetMonth.id, category.id);
+      if (spent > 0) {
+        continue;
+      }
+
+      await updateCategoryBudget({
+        userId: input.userId,
+        year: input.year,
+        month: input.month,
+        categoryId: category.id,
+        excluded: true,
+      });
+    }
+  }
 }

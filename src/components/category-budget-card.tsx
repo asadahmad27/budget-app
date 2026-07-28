@@ -81,6 +81,32 @@ export function CategoryBudgetCard({
     return success;
   }
 
+  async function handleRemoveFromMonth() {
+    const confirmed = window.confirm(
+      `Remove "${category.name}" from this month? It stays on the wallet for other months.`,
+    );
+    if (!confirmed) return;
+
+    setLoading(true);
+    setError(null);
+
+    const response = await fetch(`/api/categories/${category.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year, month, excluded: true }),
+    });
+
+    setLoading(false);
+
+    if (!response.ok) {
+      const data = await response.json();
+      setError(data.error ?? "Unable to remove category from this month");
+      return;
+    }
+
+    router.refresh();
+  }
+
   async function handleMarkDone() {
     if (isComplete || loading) return;
 
@@ -197,6 +223,17 @@ export function CategoryBudgetCard({
                 <span className="material-symbols-outlined text-base">edit</span>
                 Edit budget
               </button>
+              <button
+                type="button"
+                onClick={handleRemoveFromMonth}
+                disabled={loading || category.spent > 0}
+                className="flex items-center gap-1.5 rounded-full bg-surface-container-low px-3 py-1.5 text-xs font-medium text-on-surface-variant transition-colors hover:bg-error/10 hover:text-error disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-base">
+                  visibility_off
+                </span>
+                Remove month
+              </button>
             </div>
           ) : null}
 
@@ -216,6 +253,12 @@ export function CategoryBudgetCard({
             </div>
           ) : null}
         </div>
+
+        {!editing && !isComplete && category.spent > 0 ? (
+          <p className="text-xs text-on-surface-variant">
+            Remove month is disabled while this category has spending logged.
+          </p>
+        ) : null}
 
         {!editing && !isComplete && amountToLogOnDone > 0 ? (
           <p className="text-xs text-on-surface-variant">

@@ -4,6 +4,8 @@ import { ActivePeriodSync } from "@/components/active-period-sync";
 import { AddCategoryForm } from "@/components/add-category-form";
 import { AppShell } from "@/components/app-shell";
 import { CategoryBudgetCard } from "@/components/category-budget-card";
+import { CategoryImportForm } from "@/components/category-import-form";
+import { CopyLastMonthBudget } from "@/components/copy-last-month-budget";
 import { CategoryTotalsSummary } from "@/components/category-totals-summary";
 import { DeactivateWalletButton } from "@/components/deactivate-wallet-button";
 import { MonthSwitcher } from "@/components/month-switcher";
@@ -143,6 +145,22 @@ export default async function WalletsPage({
 
               {data.selectedWalletId ? (
                 <AddCategoryForm
+                  walletId={data.selectedWalletId}
+                  year={period.year}
+                  month={period.month}
+                />
+              ) : null}
+
+              {data.selectedWalletId ? (
+                <CopyLastMonthBudget
+                  walletId={data.selectedWalletId}
+                  year={period.year}
+                  month={period.month}
+                />
+              ) : null}
+
+              {data.selectedWalletId ? (
+                <CategoryImportForm
                   walletId={data.selectedWalletId}
                   year={period.year}
                   month={period.month}

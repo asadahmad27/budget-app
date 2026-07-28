@@ -9,10 +9,17 @@ const schema = z
     month: z.number().int().min(1).max(12),
     budgetAmount: z.number().min(0).optional(),
     complete: z.boolean().optional(),
+    excluded: z.boolean().optional(),
   })
   .refine(
-    (data) => data.budgetAmount !== undefined || data.complete === true,
-    { message: "Provide a budget amount or mark the category complete" },
+    (data) =>
+      data.budgetAmount !== undefined ||
+      data.complete === true ||
+      data.excluded !== undefined,
+    {
+      message:
+        "Provide a budget amount, mark complete, or change month visibility",
+    },
   );
 
 export async function PATCH(
