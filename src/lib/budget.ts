@@ -776,6 +776,7 @@ export async function getWalletPageData(
   let lastMonthCategoryUnspent = 0;
   let lastMonthCategoryBudget = 0;
   let lastMonthCategorySpent = 0;
+  const lastMonthRemainingByCategory = new Map<string, number>();
 
   if (selectedWalletId) {
     const previousMonth = await db.budgetMonth.findUnique({
@@ -796,22 +797,44 @@ export async function getWalletPageData(
       for (const budget of previousCategoryBudgets) {
         const budgetAmount = toNumber(budget.budgetAmount);
         const spent = await getCategorySpent(previousMonth.id, budget.categoryId);
+        const remaining = Math.max(0, budgetAmount - spent);
         lastMonthCategoryBudget += budgetAmount;
         lastMonthCategorySpent += spent;
-        lastMonthCategoryUnspent += Math.max(0, budgetAmount - spent);
+        lastMonthCategoryUnspent += remaining;
+        if (remaining > 0) {
+          lastMonthRemainingByCategory.set(budget.categoryId, remaining);
+        }
       }
     }
   }
+
+  const budgetMonth = await ensureBudgetMonth(userId, year, month);
+  const currentCategoryBudgets = await db.categoryBudget.findMany({
+    where: { budgetMonthId: budgetMonth.id },
+  });
+  const carriedByCategory = new Map(
+    currentCategoryBudgets.map((budget) => [
+      budget.categoryId,
+      toNumber(budget.carriedFromPrevious),
+    ]),
+  );
+
+  const walletCategories = categories.map((category) => ({
+    ...category,
+    lastMonthRemaining: lastMonthRemainingByCategory.get(category.id) ?? 0,
+    carriedFromPrevious: carriedByCategory.get(category.id) ?? 0,
+  }));
 
   return {
     ...dashboard,
     selectedWalletId,
     selectedWallet: wallet,
-    walletCategories: categories,
+    walletCategories,
     fundEntries,
     lastMonthCategoryTotals: {
       year: prev.year,
       month: prev.month,
+      label: formatMonthLabel(prev.year, prev.month),
       totalBudget: lastMonthCategoryBudget,
       totalSpent: lastMonthCategorySpent,
       totalUnspent: lastMonthCategoryUnspent,
@@ -1389,6 +1412,107 @@ export async function updateCategoryBudget(input: {
       categoryId: input.categoryId,
       budgetAmount: data.budgetAmount ?? 0,
       excluded: input.excluded ?? false,
+    },
+  });
+}
+
+export async function carryForwardCategoryLeftover(input: {
+  userId: string;
+  year: number;
+  month: number;
+  categoryId: string;
+}) {
+  const category = await db.category.findFirst({
+    where: { id: input.categoryId, userId: input.userId },
+  });
+
+  if (!category) {
+    throw new Error("Category not found");
+  }
+
+  const prev = previousPeriod(input.year, input.month);
+  const previousMonth = await db.budgetMonth.findUnique({
+    where: {
+      userId_year_month: {
+        userId: input.userId,
+        year: prev.year,
+        month: prev.month,
+      },
+    },
+  });
+
+  if (!previousMonth) {
+    throw new Error("No budget found for last month");
+  }
+
+  const previousBudget = await db.categoryBudget.findUnique({
+    where: {
+      budgetMonthId_categoryId: {
+        budgetMonthId: previousMonth.id,
+        categoryId: input.categoryId,
+      },
+    },
+  });
+
+  if (!previousBudget || previousBudget.excluded) {
+    throw new Error("This category had no budget last month");
+  }
+
+  const previousSpent = await getCategorySpent(
+    previousMonth.id,
+    input.categoryId,
+  );
+  const leftover = Math.max(
+    0,
+    toNumber(previousBudget.budgetAmount) - previousSpent,
+  );
+
+  if (leftover <= 0) {
+    throw new Error("Nothing left to carry from last month");
+  }
+
+  const budgetMonth = await ensureBudgetMonth(
+    input.userId,
+    input.year,
+    input.month,
+  );
+
+  const existing = await db.categoryBudget.findUnique({
+    where: {
+      budgetMonthId_categoryId: {
+        budgetMonthId: budgetMonth.id,
+        categoryId: input.categoryId,
+      },
+    },
+  });
+
+  const alreadyCarried = toNumber(existing?.carriedFromPrevious ?? 0);
+  if (alreadyCarried > 0) {
+    throw new Error(
+      `Already added ${alreadyCarried.toLocaleString("en-PK")} leftover from last month`,
+    );
+  }
+
+  const currentBudget = toNumber(existing?.budgetAmount ?? 0);
+
+  return db.categoryBudget.upsert({
+    where: {
+      budgetMonthId_categoryId: {
+        budgetMonthId: budgetMonth.id,
+        categoryId: input.categoryId,
+      },
+    },
+    update: {
+      budgetAmount: currentBudget + leftover,
+      carriedFromPrevious: leftover,
+      excluded: false,
+    },
+    create: {
+      budgetMonthId: budgetMonth.id,
+      categoryId: input.categoryId,
+      budgetAmount: currentBudget + leftover,
+      carriedFromPrevious: leftover,
+      excluded: false,
     },
   });
 }

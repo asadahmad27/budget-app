@@ -118,11 +118,12 @@ model Category {
 }
 
 model CategoryBudget {
-  id            String  @id @default(cuid())
-  budgetMonthId String
-  categoryId    String
-  budgetAmount  Decimal @db.Decimal(12, 2)
-  excluded      Boolean @default(false)
+  id                  String  @id @default(cuid())
+  budgetMonthId       String
+  categoryId          String
+  budgetAmount        Decimal @db.Decimal(12, 2)
+  excluded            Boolean @default(false)
+  carriedFromPrevious Decimal @default(0) @db.Decimal(12, 2)
 
   budgetMonth BudgetMonth @relation(fields: [budgetMonthId], references: [id], onDelete: Cascade)
   category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)

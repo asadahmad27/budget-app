@@ -181,6 +181,7 @@ export default async function WalletsPage({
                       walletId={category.walletId}
                       year={period.year}
                       month={period.month}
+                      lastMonthLabel={data.lastMonthCategoryTotals.label}
                     />
                   ))
                 )}

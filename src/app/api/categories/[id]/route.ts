@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { updateCategoryBudget } from "@/lib/budget";
+import {
+  carryForwardCategoryLeftover,
+  updateCategoryBudget,
+} from "@/lib/budget";
 import { getSession } from "@/lib/session";
 
 const schema = z
@@ -10,15 +13,17 @@ const schema = z
     budgetAmount: z.number().min(0).optional(),
     complete: z.boolean().optional(),
     excluded: z.boolean().optional(),
+    carryForwardLeftover: z.boolean().optional(),
   })
   .refine(
     (data) =>
       data.budgetAmount !== undefined ||
       data.complete === true ||
-      data.excluded !== undefined,
+      data.excluded !== undefined ||
+      data.carryForwardLeftover === true,
     {
       message:
-        "Provide a budget amount, mark complete, or change month visibility",
+        "Provide a budget amount, mark complete, change visibility, or carry leftover",
     },
   );
 
@@ -34,10 +39,25 @@ export async function PATCH(
   try {
     const { id } = await context.params;
     const body = schema.parse(await request.json());
+
+    if (body.carryForwardLeftover) {
+      await carryForwardCategoryLeftover({
+        userId: session.userId,
+        categoryId: id,
+        year: body.year,
+        month: body.month,
+      });
+      return NextResponse.json({ ok: true });
+    }
+
     await updateCategoryBudget({
       userId: session.userId,
       categoryId: id,
-      ...body,
+      year: body.year,
+      month: body.month,
+      budgetAmount: body.budgetAmount,
+      complete: body.complete,
+      excluded: body.excluded,
     });
     return NextResponse.json({ ok: true });
   } catch (error) {

@@ -13,6 +13,8 @@ type CategoryItem = {
   spent: number;
   remaining: number;
   progress: number;
+  lastMonthRemaining?: number;
+  carriedFromPrevious?: number;
 };
 
 export function CategoryBudgetCard({
@@ -20,11 +22,13 @@ export function CategoryBudgetCard({
   walletId,
   year,
   month,
+  lastMonthLabel,
 }: {
   category: CategoryItem;
   walletId: string;
   year: number;
   month: number;
+  lastMonthLabel?: string;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -35,6 +39,11 @@ export function CategoryBudgetCard({
     category.budgetAmount > 0 && category.remaining <= 0;
   const isPartiallySpent =
     category.spent > 0 && category.remaining > 0;
+  const lastMonthRemaining = category.lastMonthRemaining ?? 0;
+  const carriedFromPrevious = category.carriedFromPrevious ?? 0;
+  const canCarryLeftover =
+    lastMonthRemaining > 0 && carriedFromPrevious <= 0;
+  const baseBudget = Math.max(0, category.budgetAmount - carriedFromPrevious);
   const amountToLogOnDone =
     category.remaining > 0
       ? category.remaining
@@ -45,6 +54,7 @@ export function CategoryBudgetCard({
   async function updateBudget(payload: {
     budgetAmount?: number;
     complete?: boolean;
+    carryForwardLeftover?: boolean;
   }) {
     const response = await fetch(`/api/categories/${category.id}`, {
       method: "PATCH",
@@ -107,6 +117,21 @@ export function CategoryBudgetCard({
     router.refresh();
   }
 
+  async function handleCarryLeftover() {
+    if (!canCarryLeftover || loading) return;
+
+    const confirmed = window.confirm(
+      `Add ${formatMoney(lastMonthRemaining)} leftover from ${lastMonthLabel ?? "last month"} to "${category.name}"?\n\nNew budget: ${formatMoney(category.budgetAmount + lastMonthRemaining)} (${formatMoney(category.budgetAmount)} + ${formatMoney(lastMonthRemaining)})`,
+    );
+    if (!confirmed) return;
+
+    setLoading(true);
+    setError(null);
+    const success = await updateBudget({ carryForwardLeftover: true });
+    setLoading(false);
+    if (!success) return;
+  }
+
   async function handleMarkDone() {
     if (isComplete || loading) return;
 
@@ -153,11 +178,11 @@ export function CategoryBudgetCard({
     <div
       className={`rounded-xl bg-surface-container-lowest p-5 shadow-sm ${
         isComplete ? "ring-1 ring-secondary/30" : ""
-      }`}
+      } ${canCarryLeftover ? "ring-1 ring-primary/20" : ""}`}
     >
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h4 className="font-semibold">{category.name}</h4>
             {isComplete ? (
               <span className="rounded-full bg-secondary/10 px-2 py-0.5 text-xs font-medium text-secondary">
@@ -168,15 +193,33 @@ export function CategoryBudgetCard({
                 In progress
               </span>
             ) : null}
+            {canCarryLeftover ? (
+              <span className="rounded-full bg-primary-container px-2 py-0.5 text-xs font-medium text-on-primary-container">
+                {formatMoney(lastMonthRemaining)} left from{" "}
+                {lastMonthLabel ?? "last month"}
+              </span>
+            ) : null}
+            {carriedFromPrevious > 0 ? (
+              <span className="rounded-full bg-secondary-container px-2 py-0.5 text-xs font-medium text-on-secondary-container">
+                +{formatMoney(carriedFromPrevious)} leftover added
+              </span>
+            ) : null}
           </div>
           <p className="text-xs text-on-surface-variant">
             Remaining {formatMoney(category.remaining)}
           </p>
         </div>
 
-        <p className="font-semibold text-primary">
-          {formatMoney(category.budgetAmount)}
-        </p>
+        <div className="text-right">
+          <p className="font-semibold text-primary">
+            {formatMoney(category.budgetAmount)}
+          </p>
+          {carriedFromPrevious > 0 ? (
+            <p className="text-[11px] text-on-surface-variant">
+              {formatMoney(baseBudget)} + {formatMoney(carriedFromPrevious)}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <div className="h-2 w-full overflow-hidden rounded-full bg-[#E2E8F0]">
@@ -187,6 +230,27 @@ export function CategoryBudgetCard({
           }}
         />
       </div>
+
+      {canCarryLeftover ? (
+        <div className="mt-3 rounded-lg border border-primary/20 bg-primary-container/20 p-3">
+          <p className="text-xs text-on-surface-variant">
+            {formatMoney(lastMonthRemaining)} unfinished from{" "}
+            {lastMonthLabel ?? "last month"}. Add it to this month&apos;s budget
+            so you can finish it here.
+          </p>
+          <button
+            type="button"
+            onClick={handleCarryLeftover}
+            disabled={loading}
+            className="mt-2 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-on-primary disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined text-base">
+              merge_type
+            </span>
+            Add leftover ({formatMoney(lastMonthRemaining)})
+          </button>
+        </div>
+      ) : null}
 
       <div className="mt-3 space-y-3">
         <div className="flex items-center justify-between gap-3">
