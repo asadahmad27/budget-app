@@ -25,6 +25,7 @@ model User {
   transactions Transaction[]
   loans        Loan[]
   lifeGoals    LifeGoal[]
+  fundEntries  WalletFundEntry[]
 }
 
 model Wallet {
@@ -43,6 +44,7 @@ model Wallet {
   categories   Category[]
   transactions Transaction[]
   lifeGoals    LifeGoal[]
+  fundEntries  WalletFundEntry[]
 
   @@unique([userId, name])
   @@unique([userId, providerKey])
@@ -62,6 +64,7 @@ model BudgetMonth {
   walletMonths    WalletMonth[]
   categoryBudgets CategoryBudget[]
   transactions    Transaction[]
+  fundEntries     WalletFundEntry[]
 
   @@unique([userId, year, month])
   @@index([userId])
@@ -78,6 +81,24 @@ model WalletMonth {
   wallet      Wallet      @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   @@unique([budgetMonthId, walletId])
+}
+
+model WalletFundEntry {
+  id            String   @id @default(cuid())
+  userId        String
+  budgetMonthId String
+  walletId      String
+  amount        Decimal  @db.Decimal(12, 2)
+  note          String?
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgetMonth BudgetMonth @relation(fields: [budgetMonthId], references: [id], onDelete: Cascade)
+  wallet      Wallet      @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([budgetMonthId, walletId])
 }
 
 model Category {

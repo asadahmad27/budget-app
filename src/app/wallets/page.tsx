@@ -138,6 +138,7 @@ export default async function WalletsPage({
               month={period.month}
               openingBalance={data.selectedWallet.opening}
               addedAmount={data.selectedWallet.added}
+              fundEntries={data.fundEntries}
             />
 
             <section className="space-y-4">

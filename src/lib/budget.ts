@@ -768,6 +768,10 @@ export async function getWalletPageData(
     (category) => category.walletId === selectedWalletId,
   );
 
+  const fundEntries = selectedWalletId
+    ? await getWalletFundEntries(userId, selectedWalletId, year, month)
+    : [];
+
   const prev = previousPeriod(year, month);
   let lastMonthCategoryUnspent = 0;
   let lastMonthCategoryBudget = 0;
@@ -804,6 +808,7 @@ export async function getWalletPageData(
     selectedWalletId,
     selectedWallet: wallet,
     walletCategories: categories,
+    fundEntries,
     lastMonthCategoryTotals: {
       year: prev.year,
       month: prev.month,
@@ -1158,22 +1163,145 @@ export async function addWalletFunds(input: {
     },
   });
 
-  if (!existing) {
-    return db.walletMonth.create({
+  const walletMonth =
+    existing ??
+    (await db.walletMonth.create({
       data: {
         budgetMonthId: budgetMonth.id,
         walletId: input.walletId,
         openingBalance: 0,
-        addedAmount: input.amount,
+        addedAmount: 0,
       },
-    });
+    }));
+
+  await db.walletFundEntry.create({
+    data: {
+      userId: input.userId,
+      budgetMonthId: budgetMonth.id,
+      walletId: input.walletId,
+      amount: input.amount,
+      note: input.note?.trim() || null,
+      date: new Date(),
+    },
+  });
+
+  return db.walletMonth.update({
+    where: { id: walletMonth.id },
+    data: { addedAmount: toNumber(walletMonth.addedAmount) + input.amount },
+  });
+}
+
+async function syncWalletMonthAddedAmount(
+  budgetMonthId: string,
+  walletId: string,
+) {
+  const aggregate = await db.walletFundEntry.aggregate({
+    where: { budgetMonthId, walletId },
+    _sum: { amount: true },
+  });
+
+  const addedAmount = toNumber(aggregate._sum.amount ?? 0);
+
+  await db.walletMonth.upsert({
+    where: {
+      budgetMonthId_walletId: {
+        budgetMonthId,
+        walletId,
+      },
+    },
+    update: { addedAmount },
+    create: {
+      budgetMonthId,
+      walletId,
+      openingBalance: 0,
+      addedAmount,
+    },
+  });
+
+  return addedAmount;
+}
+
+export async function getWalletFundEntries(
+  userId: string,
+  walletId: string,
+  year: number,
+  month: number,
+) {
+  const budgetMonth = await ensureBudgetMonth(userId, year, month);
+
+  const wallet = await db.wallet.findFirst({
+    where: { id: walletId, userId, isActive: true },
+  });
+
+  if (!wallet) {
+    throw new Error("Wallet not found or inactive");
   }
 
-  const currentAdded = toNumber(existing.addedAmount);
-  return db.walletMonth.update({
-    where: { id: existing.id },
-    data: { addedAmount: currentAdded + input.amount },
+  const entries = await db.walletFundEntry.findMany({
+    where: {
+      userId,
+      walletId,
+      budgetMonthId: budgetMonth.id,
+    },
+    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
   });
+
+  return entries.map((entry) => ({
+    id: entry.id,
+    amount: toNumber(entry.amount),
+    note: entry.note,
+    date: entry.date,
+  }));
+}
+
+export async function updateWalletFundEntry(
+  userId: string,
+  entryId: string,
+  input: { amount?: number; note?: string },
+) {
+  const entry = await db.walletFundEntry.findFirst({
+    where: { id: entryId, userId },
+  });
+
+  if (!entry) {
+    throw new Error("Fund entry not found");
+  }
+
+  if (input.amount !== undefined && input.amount <= 0) {
+    throw new Error("Amount must be greater than zero");
+  }
+
+  const updated = await db.walletFundEntry.update({
+    where: { id: entryId },
+    data: {
+      ...(input.amount !== undefined ? { amount: input.amount } : {}),
+      ...(input.note !== undefined
+        ? { note: input.note.trim() || null }
+        : {}),
+    },
+  });
+
+  await syncWalletMonthAddedAmount(entry.budgetMonthId, entry.walletId);
+
+  return {
+    id: updated.id,
+    amount: toNumber(updated.amount),
+    note: updated.note,
+    date: updated.date,
+  };
+}
+
+export async function deleteWalletFundEntry(userId: string, entryId: string) {
+  const entry = await db.walletFundEntry.findFirst({
+    where: { id: entryId, userId },
+  });
+
+  if (!entry) {
+    throw new Error("Fund entry not found");
+  }
+
+  await db.walletFundEntry.delete({ where: { id: entryId } });
+  await syncWalletMonthAddedAmount(entry.budgetMonthId, entry.walletId);
 }
 
 export async function updateCategoryBudget(input: {
