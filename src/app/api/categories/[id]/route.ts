@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
   carryForwardCategoryLeftover,
+  discardCategoryLeftover,
   removeCarriedCategoryLeftover,
   updateCategoryBudget,
 } from "@/lib/budget";
@@ -17,6 +18,7 @@ const schema = z
     carryForwardLeftover: z.boolean().optional(),
     carryAmount: z.number().positive().optional(),
     removeCarriedLeftover: z.boolean().optional(),
+    discardLeftover: z.boolean().optional(),
   })
   .refine(
     (data) =>
@@ -24,10 +26,11 @@ const schema = z
       data.complete === true ||
       data.excluded !== undefined ||
       data.carryForwardLeftover === true ||
-      data.removeCarriedLeftover === true,
+      data.removeCarriedLeftover === true ||
+      data.discardLeftover === true,
     {
       message:
-        "Provide a budget amount, mark complete, change visibility, carry leftover, or remove leftover",
+        "Provide a budget amount, mark complete, change visibility, carry leftover, remove leftover, or discard leftover",
     },
   );
 
@@ -46,6 +49,16 @@ export async function PATCH(
 
     if (body.removeCarriedLeftover) {
       await removeCarriedCategoryLeftover({
+        userId: session.userId,
+        categoryId: id,
+        year: body.year,
+        month: body.month,
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    if (body.discardLeftover) {
+      await discardCategoryLeftover({
         userId: session.userId,
         categoryId: id,
         year: body.year,

@@ -15,6 +15,7 @@ type CategoryItem = {
   progress: number;
   lastMonthRemaining?: number;
   carriedFromPrevious?: number;
+  leftoverDiscarded?: boolean;
 };
 
 export function CategoryBudgetCard({
@@ -43,8 +44,11 @@ export function CategoryBudgetCard({
     category.spent > 0 && category.remaining > 0;
   const lastMonthRemaining = category.lastMonthRemaining ?? 0;
   const carriedFromPrevious = category.carriedFromPrevious ?? 0;
+  const leftoverDiscarded = category.leftoverDiscarded ?? false;
   const canCarryLeftover =
-    lastMonthRemaining > 0 && carriedFromPrevious <= 0;
+    lastMonthRemaining > 0 &&
+    carriedFromPrevious <= 0 &&
+    !leftoverDiscarded;
   const baseBudget = Math.max(0, category.budgetAmount - carriedFromPrevious);
   const amountToLogOnDone =
     category.remaining > 0
@@ -59,6 +63,7 @@ export function CategoryBudgetCard({
     carryForwardLeftover?: boolean;
     carryAmount?: number;
     removeCarriedLeftover?: boolean;
+    discardLeftover?: boolean;
   }) {
     const response = await fetch(`/api/categories/${category.id}`, {
       method: "PATCH",
@@ -164,6 +169,21 @@ export function CategoryBudgetCard({
     setLoading(true);
     setError(null);
     const success = await updateBudget({ removeCarriedLeftover: true });
+    setLoading(false);
+    if (!success) return;
+  }
+
+  async function handleDiscardLeftover() {
+    if (!canCarryLeftover || loading) return;
+
+    const confirmed = window.confirm(
+      `Discard ${formatMoney(lastMonthRemaining)} leftover from ${lastMonthLabel ?? "last month"} for "${category.name}"?\n\nIt will not be added to this month.`,
+    );
+    if (!confirmed) return;
+
+    setLoading(true);
+    setError(null);
+    const success = await updateBudget({ discardLeftover: true });
     setLoading(false);
     if (!success) return;
   }
@@ -304,6 +324,17 @@ export function CategoryBudgetCard({
             >
               <span className="material-symbols-outlined text-base">edit</span>
               Custom amount
+            </button>
+            <button
+              type="button"
+              onClick={handleDiscardLeftover}
+              disabled={loading}
+              className="flex items-center gap-1.5 rounded-full border border-outline-variant bg-white px-3 py-1.5 text-xs font-medium text-on-surface-variant disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined text-base">
+                close
+              </span>
+              Discard leftover
             </button>
           </div>
 
