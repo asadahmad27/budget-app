@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
   carryForwardCategoryLeftover,
+  removeCarriedCategoryLeftover,
   updateCategoryBudget,
 } from "@/lib/budget";
 import { getSession } from "@/lib/session";
@@ -14,16 +15,19 @@ const schema = z
     complete: z.boolean().optional(),
     excluded: z.boolean().optional(),
     carryForwardLeftover: z.boolean().optional(),
+    carryAmount: z.number().positive().optional(),
+    removeCarriedLeftover: z.boolean().optional(),
   })
   .refine(
     (data) =>
       data.budgetAmount !== undefined ||
       data.complete === true ||
       data.excluded !== undefined ||
-      data.carryForwardLeftover === true,
+      data.carryForwardLeftover === true ||
+      data.removeCarriedLeftover === true,
     {
       message:
-        "Provide a budget amount, mark complete, change visibility, or carry leftover",
+        "Provide a budget amount, mark complete, change visibility, carry leftover, or remove leftover",
     },
   );
 
@@ -40,12 +44,23 @@ export async function PATCH(
     const { id } = await context.params;
     const body = schema.parse(await request.json());
 
+    if (body.removeCarriedLeftover) {
+      await removeCarriedCategoryLeftover({
+        userId: session.userId,
+        categoryId: id,
+        year: body.year,
+        month: body.month,
+      });
+      return NextResponse.json({ ok: true });
+    }
+
     if (body.carryForwardLeftover) {
       await carryForwardCategoryLeftover({
         userId: session.userId,
         categoryId: id,
         year: body.year,
         month: body.month,
+        amount: body.carryAmount,
       });
       return NextResponse.json({ ok: true });
     }

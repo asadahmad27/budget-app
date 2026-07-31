@@ -1421,6 +1421,7 @@ export async function carryForwardCategoryLeftover(input: {
   year: number;
   month: number;
   categoryId: string;
+  amount?: number;
 }) {
   const category = await db.category.findFirst({
     where: { id: input.categoryId, userId: input.userId },
@@ -1471,6 +1472,19 @@ export async function carryForwardCategoryLeftover(input: {
     throw new Error("Nothing left to carry from last month");
   }
 
+  const carryAmount =
+    input.amount !== undefined ? input.amount : leftover;
+
+  if (!Number.isFinite(carryAmount) || carryAmount <= 0) {
+    throw new Error("Enter an amount greater than zero");
+  }
+
+  if (carryAmount > leftover) {
+    throw new Error(
+      `Amount cannot exceed last month leftover (${leftover.toLocaleString("en-PK")} PKR)`,
+    );
+  }
+
   const budgetMonth = await ensureBudgetMonth(
     input.userId,
     input.year,
@@ -1503,16 +1517,66 @@ export async function carryForwardCategoryLeftover(input: {
       },
     },
     update: {
-      budgetAmount: currentBudget + leftover,
-      carriedFromPrevious: leftover,
+      budgetAmount: currentBudget + carryAmount,
+      carriedFromPrevious: carryAmount,
       excluded: false,
     },
     create: {
       budgetMonthId: budgetMonth.id,
       categoryId: input.categoryId,
-      budgetAmount: currentBudget + leftover,
-      carriedFromPrevious: leftover,
+      budgetAmount: currentBudget + carryAmount,
+      carriedFromPrevious: carryAmount,
       excluded: false,
+    },
+  });
+}
+
+export async function removeCarriedCategoryLeftover(input: {
+  userId: string;
+  year: number;
+  month: number;
+  categoryId: string;
+}) {
+  const category = await db.category.findFirst({
+    where: { id: input.categoryId, userId: input.userId },
+  });
+
+  if (!category) {
+    throw new Error("Category not found");
+  }
+
+  const budgetMonth = await ensureBudgetMonth(
+    input.userId,
+    input.year,
+    input.month,
+  );
+
+  const existing = await db.categoryBudget.findUnique({
+    where: {
+      budgetMonthId_categoryId: {
+        budgetMonthId: budgetMonth.id,
+        categoryId: input.categoryId,
+      },
+    },
+  });
+
+  if (!existing) {
+    throw new Error("Category budget not found for this month");
+  }
+
+  const carried = toNumber(existing.carriedFromPrevious);
+  if (carried <= 0) {
+    throw new Error("No leftover has been added to this category");
+  }
+
+  const currentBudget = toNumber(existing.budgetAmount);
+  const nextBudget = Math.max(0, currentBudget - carried);
+
+  return db.categoryBudget.update({
+    where: { id: existing.id },
+    data: {
+      budgetAmount: nextBudget,
+      carriedFromPrevious: 0,
     },
   });
 }
