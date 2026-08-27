@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { ClearPreviousBalanceButton } from "@/components/clear-previous-balance-button";
 import { FundEntriesList } from "@/components/fund-entries-list";
 import { LogFundsForm } from "@/components/log-funds-form";
 import { formatMoney } from "@/lib/format";
@@ -83,17 +84,28 @@ export function WalletFundingForm({
             </p>
           </div>
           {!editingRollover ? (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingRollover(true);
-                setRolloverSaved(false);
-                setRolloverError(null);
-              }}
-              className="rounded-lg border border-outline-variant px-3 py-1.5 text-xs font-medium text-primary"
-            >
-              Edit
-            </button>
+            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingRollover(true);
+                  setRolloverSaved(false);
+                  setRolloverError(null);
+                }}
+                className="rounded-lg border border-outline-variant px-3 py-1.5 text-xs font-medium text-primary"
+              >
+                Edit
+              </button>
+              {openingBalance > 0 ? (
+                <ClearPreviousBalanceButton
+                  year={year}
+                  month={month}
+                  walletId={walletId}
+                  walletName={walletName}
+                  amount={openingBalance}
+                />
+              ) : null}
+            </div>
           ) : null}
         </div>
 

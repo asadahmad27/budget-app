@@ -1158,6 +1158,44 @@ export async function updateWalletMonthFunding(input: {
   });
 }
 
+export async function clearWalletOpeningBalances(input: {
+  userId: string;
+  year: number;
+  month: number;
+  walletId?: string;
+}) {
+  const budgetMonth = await ensureBudgetMonth(
+    input.userId,
+    input.year,
+    input.month,
+  );
+
+  if (input.walletId) {
+    const walletMonth = await db.walletMonth.findUnique({
+      where: {
+        budgetMonthId_walletId: {
+          budgetMonthId: budgetMonth.id,
+          walletId: input.walletId,
+        },
+      },
+    });
+
+    if (!walletMonth) {
+      throw new Error("Wallet not found for this month");
+    }
+
+    return db.walletMonth.update({
+      where: { id: walletMonth.id },
+      data: { openingBalance: 0 },
+    });
+  }
+
+  return db.walletMonth.updateMany({
+    where: { budgetMonthId: budgetMonth.id },
+    data: { openingBalance: 0 },
+  });
+}
+
 export async function addWalletFunds(input: {
   userId: string;
   year: number;
