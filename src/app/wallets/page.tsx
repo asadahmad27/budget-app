@@ -9,7 +9,6 @@ import { CopyLastMonthBudget } from "@/components/copy-last-month-budget";
 import { CategoryTotalsSummary } from "@/components/category-totals-summary";
 import { DeactivateWalletButton } from "@/components/deactivate-wallet-button";
 import { MonthSwitcher } from "@/components/month-switcher";
-import { ClearPreviousBalanceButton } from "@/components/clear-previous-balance-button";
 import { WalletFundingForm } from "@/components/wallet-funding-form";
 import { getWalletPageData, resolvePeriodContext } from "@/lib/budget";
 import { formatMoney, formatPeriodLabel } from "@/lib/format";
@@ -41,10 +40,6 @@ export default async function WalletsPage({
   );
   const totalCategoryUnspent = data.walletCategories.reduce(
     (sum, category) => sum + Math.max(0, category.remaining),
-    0,
-  );
-  const totalOpeningBalance = data.wallets.reduce(
-    (sum, wallet) => sum + wallet.opening,
     0,
   );
 
@@ -106,15 +101,6 @@ export default async function WalletsPage({
 
         {data.selectedWallet ? (
           <>
-            {totalOpeningBalance > 0 ? (
-              <ClearPreviousBalanceButton
-                year={period.year}
-                month={period.month}
-                amount={totalOpeningBalance}
-                variant="card"
-              />
-            ) : null}
-
             <section
               className="rounded-xl border-t-4 bg-surface-container-lowest p-8 shadow-sm"
               style={{ borderTopColor: data.selectedWallet.color }}

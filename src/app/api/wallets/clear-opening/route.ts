@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { clearWalletOpeningBalances } from "@/lib/budget";
+import { clearWalletOpeningBalance } from "@/lib/budget";
 import { getSession } from "@/lib/session";
 
 const schema = z.object({
   year: z.number().int(),
   month: z.number().int().min(1).max(12),
-  walletId: z.string().min(1).optional(),
+  walletId: z.string().min(1),
 });
 
 export async function POST(request: Request) {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
   try {
     const body = schema.parse(await request.json());
-    await clearWalletOpeningBalances({
+    await clearWalletOpeningBalance({
       userId: session.userId,
       ...body,
     });
