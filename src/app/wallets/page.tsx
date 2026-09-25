@@ -132,6 +132,7 @@ export default async function WalletsPage({
             </section>
 
             <WalletFundingForm
+              key={data.selectedWallet.id}
               walletId={data.selectedWallet.id}
               walletName={data.selectedWallet.name}
               year={period.year}
